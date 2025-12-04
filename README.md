@@ -14,9 +14,7 @@ As of 04/12/2025 there is nothing "rapid" about Rapid-Porkchop. That will come l
 
 ## Quick Start
 
-1. Create a Python virtual environment and install dependencies:
+Install Python (3.8 - 3.13) and requirements. 
 
 ```powershell
-python -m venv .venv
-.venv\Scripts\Activate.ps1
 pip install -r requirements.txt
