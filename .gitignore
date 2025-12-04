@@ -13,4 +13,4 @@ taichi-template/
 tests/
 
 # Call script
-call.py
+src/call.py
