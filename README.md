@@ -6,9 +6,11 @@ Python implementation of the Lambert problem (interplanetary trajectory planning
 
 Rapid-Porkchop solves the two-point boundary value Lambert problem:
 given two position vectors (departure and arrival) and a time-of-flight (TOF),
-compute the feasible transfer orbit(s) (velocity vectors) connecting them under a central inverse-square gravity field.
+compute the feasible transfer orbit(s) (velocity vectors).
 
-This implementation uses the Universal Variables approach to solve the Lambert problem
+This implementation uses the Universal Variables approach to solve the Lambert problem.
+
+As of 04/12/2025 there is nothing "rapid" about Rapid-Porkchop. That will come later.
 
 ## Quick Start
 
