@@ -1,4 +1,4 @@
-from src.lambert import lam_solve
+from lambert import lam_solve
 import numpy as np
 
 r1 = np.array([-21800, 37900, 0]) #km
