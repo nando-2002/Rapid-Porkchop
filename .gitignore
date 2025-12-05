@@ -1,16 +1,13 @@
-# References
 references/
 
-# Python cache
 __pycache__/
 *.py[cod]
 *$py.class
 
-# Taichi template
 taichi-template/
 
-# Tests
 tests/
 
-# Call script
+assignments/
+
 #src/call.py
