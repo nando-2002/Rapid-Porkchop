@@ -68,6 +68,7 @@ def car2kep(r, v, mu):
     apogee = (h_mag**2 / mu) * (1 / ( 1 + ecc_mag * np.cos(np.pi) ) )
     semi_major_axis = (perigee + apogee) * 0.5
 
+    '''
     print(f"(a) R Magnitude : ", r_mag)
     print(f"(b) V Magnitude : ", v_mag)
     print(f"(c) V Radial : ", v_radial)
@@ -82,6 +83,7 @@ def car2kep(r, v, mu):
     print(f"(l) Argument of Perigee : ", np.rad2deg(arg_per))
     print(f"(m) True Anomaly : ", np.rad2deg(true_anom))
     print(f" Also, Semi Major Axis : ", semi_major_axis)
+    '''
 
     return h_mag, semi_major_axis, ecc_mag, ran, inclin, arg_per, true_anom
 
