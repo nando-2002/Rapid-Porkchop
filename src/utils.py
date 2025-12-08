@@ -3,8 +3,7 @@ import numpy as np
 def car2kep(r, v, mu):
 
     '''
-    Returns Keplerian orbital elements when given Cartesian coordinates for
-    position and velocity. 
+    Returns Keplerian orbital elements when given Cartesian state vector. 
 
     The algorithm is taken from "Orbital Mechanics for Engineering Students" by 
     Howard D. Curtis, Algorithm 4.2 
@@ -87,14 +86,82 @@ def car2kep(r, v, mu):
 
     return h_mag, semi_major_axis, ecc_mag, ran, inclin, arg_per, true_anom
 
+def kep2car(h, e, i, Om, om, theta, mu):
 
+    '''
+    Returns Cartesian state vector when given Keplerian orbital elements.  
+
+    The algorithm is taken from "Orbital Mechanics for Engineering Students" by 
+    Howard D. Curtis, Algorithm 4.5 
+
+    Input Parameters
+    h, e, i, Om, om, theta : float
+        Keplerian orbital elements 
+            - Angular momentum
+            - Eccentricity
+            - Inclination
+            - Right ascension node 
+            - Argument of perigee
+            - True anomaly
+    mu : float
+        Gravitational constant for main attractor (km^3/s^2)
+    
+    Returns: 
+    r : ndarray 
+        Orbital position (km)
+    v : ndarray 
+        Orbital velocity (km/s)
+
+    Author: 
+        Prthik Karthikeyan 08/12/2025
+    '''
+
+    # position vector in perifocal coordinates 
+    temp_vec = np.array([ [ np.cos(theta) ] , [ np.sin(theta) ], [ 0 ] ])
+    r_peri = ( h**2 / mu ) * ( 1 / ( 1 + e*np.cos(theta) ) ) * temp_vec
+    #print (f"Position in perifocal frame :\n ", r_peri)
+    
+    # velocity vector in perifocal coordinates
+    temp_vec = np.array([ [ -np.sin(theta) ], [ e + np.cos(theta) ], [ 0 ] ])
+    v_peri = ( mu / h ) * temp_vec
+    #print (f"Position in perifocal frame :\n ", v_peri)
+    
+    # calculating transformation matrix 
+    # matrix 1
+    p = np.array([
+    [ np.cos(om),  np.sin(om), 0.0],
+    [-np.sin(om),  np.cos(om), 0.0],
+    [        0.0,         0.0, 1.0] ])
+
+    # matrix 2 
+    q = np.array([
+    [1.0,       0.0,        0.0],
+    [0.0,  np.cos(i),  np.sin(i)],
+    [0.0, -np.sin(i),  np.cos(i)] ])
+
+    #matrix 3 
+    r = np.array([
+    [ np.cos(Om),  np.sin(Om), 0.0],
+    [-np.sin(Om),  np.cos(Om), 0.0],
+    [        0.0,         0.0, 1.0] ])
+    QXx = np.dot(np.dot(p, q), r)
+    QxX = np.transpose(QXx)
+    #print(f"Transformation Matrix \n", QxX)
+
+    r = np.transpose(np.dot(QxX, r_peri))
+    v = np.transpose(np.dot(QxX, v_peri))
+
+    return r, v
 
 
 '''
 r1 = np.array([-6045, -3490, 2500])
 v1 = np.array([-3.457, 6.618, 2.533])
+'''
+#h_mag, semi_major_axis, ecc_mag, ran, inclin, arg_per, true_anom
+'''
+r, v = kep2car(80_000, 1.4, (30/180 * np.pi), (40/180 * np.pi), (60/180 * np.pi), (30/180 * np.pi), 398_600)
 
-car2kep(r1, v1, 398600)
-
-page 217 curtis
+print(f"r \n", r)
+print(f"v \n", v)
 '''
