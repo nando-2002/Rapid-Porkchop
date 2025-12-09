@@ -1,4 +1,5 @@
-from lambert import lam_solve
+from utils.utils import car2kep
+from utils.lambert import lam_solve
 import numpy as np
 
 r1 = np.array([-21800, 37900, 0]) #km
@@ -10,3 +11,7 @@ v1, v2 = lam_solve(r1, r2, delT, mu)
 
 print(f"V1 : ", v1)
 print(f"V2 : ", v2)
+
+h, a, e, Om, i, om, theta = car2kep(r1, v1, mu)
+
+print(f"Semi major axis : ", a, "km")
