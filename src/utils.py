@@ -153,6 +153,104 @@ def kep2car(h, e, i, Om, om, theta, mu):
 
     return r, v
 
+def jd2date(jd):
+    '''
+    Returns the Gregorian date in YYYY/MM/DD/hrs/min/secs when given an input
+    of the Julian Date value (float)
+
+    Input Parameters
+
+    Returns:
+
+    Author: 
+        Prthik Karthikeyan 09/12/2025
+
+    '''
+    # TODO include some error handling here
+
+    # Adding 0.5 to JD and taking FLOOR ensures that the date is correct.
+    j = np.floor(jd+0.5) + 32044
+    g = np.floor(j/146097)
+    dg = np.mod(j,146097)
+    c = np.floor((np.floor(dg/36524)+1) * 3/4)
+    dc = dg - c*36524
+    b = np.floor(dc/1461)
+    db = np.mod(dc,1461)
+    a = np.floor((np.floor(db/365)+1) * 3/4)
+    da = db - a*365
+    y = g*400 + c*100 + b*4 + a
+    m = np.floor((da*5 + 308)/153) - 2
+    d = da - np.floor((m+4)*153/5) + 122
+
+    # Year, Month and Day 
+    Y = y-4800 + np.floor((m+2)/12)
+    M = np.mod((m+2),12) + 1
+    D = np.floor(d+1)
+
+    # Hour, Minute, Second
+    hrs, mins, sec = fracday2hms( np.mod( jd+0.5, np.floor(jd+0.5) ) )
+    return Y, M, D, hrs, mins, sec
+
+def fracday2hms(inp_dayfrac):
+    if (inp_dayfrac < 0 or inp_dayfrac >= 1):
+        raise ValueError("The input should be greater than 0 and less than 1")
+
+    temp = inp_dayfrac*24
+    hrs = np.fix(temp)
+    mins = np.fix((temp - hrs)*60)
+    sec = (temp - hrs - mins/60)*3600
+
+    return hrs, mins, sec
+
+def date2jd(inp_date):
+    '''
+    Returns the Julian Day for an input of a Gregorian date in 
+    YYYY/MM/DD/hrs/min/sec
+
+    Input Parameters
+
+    Returns:
+
+    Author: 
+        Prthik Karthikeyan 09/12/2025
+
+    '''
+    Y = inp_date[0]
+    M = inp_date[1]
+    D = inp_date[2]
+    hrs = inp_date[3]
+    mn = inp_date[4]
+    sec = inp_date[5]
+
+    # check if out of bounds (12 noon, 24 Nov, 4713 BC)
+    if Y <-4713 or ( Y == -4713 and ( M < 11 or ( M == 11 and D < 24 or ( D == 24 and hrs < 12)))):
+        raise ValueError("This function is only valid for dates after 12:00 noon, 24 Nov, 4713 BCE")
+    
+
+    jd = 367*Y - np.floor(7*(Y+np.floor((M+9)/12))/4) - np.floor(3*np.floor((Y+(M-9)/7)/100+1)/4) + np.floor(275*M/9) + D + 1721028.5 + hms2fracday(hrs,mn,sec)
+
+    return jd
+
+def date2mjd2000(inp_date):
+    '''
+    Returns the Modified Julian Day 2000 for an input of a Gregorian date in 
+    YYYY/MM/DD/hrs/min/sec
+
+    Input Parameters
+
+    Returns:
+
+    Author: 
+        Prthik Karthikeyan 09/12/2025
+
+    '''
+    mjd2000 = date2jd(inp_date) - 2400000.5 - 51544.5
+    return mjd2000
+
+def hms2fracday(hrs, mn, secs):
+    dayfrac = ( hrs + (mn/60) + ( secs/ (60*60) ) ) / 24
+    return dayfrac
+
 
 '''
 r1 = np.array([-6045, -3490, 2500])
