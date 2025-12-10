@@ -38,13 +38,12 @@ print(f"Position Vector", r2_car)
 print(f"Velocity Vector", v2_car)
 print(f"Velocity Mag", np.linalg.norm(v2_car))
 
-TOF = arrival_mjd - departure_mjd
+TOF = (arrival_mjd - departure_mjd) * 24 * 60 * 60
 r1_car = np.asarray(r1_car).flatten()
 r2_car = np.asarray(r2_car).flatten()
 
 print(r2_car)
 
-'''
 v1, v2 = lam_solve(r1_car, r2_car, TOF, SunMu)
 
 delv1 = v1 - v1_car
@@ -54,4 +53,3 @@ tot_del_v = np.linalg.norm(delv1) + np.linalg.norm(delv2)
 
 print("----------------------------------------------------------------------")
 print(f"Total Delta V \n", tot_del_v, "km/s")
-'''
