@@ -81,7 +81,7 @@ def C(z):
         return ( ( 1 - np.cos(np.sqrt(z)) ) / (z) )
     elif (z < 0):
         return ( ( np.cosh(np.sqrt(-z)) - 1 ) / ( -z ) )
-    else (z == 0):
+    else:
         return 0.5
     
 def S(z):
@@ -89,7 +89,7 @@ def S(z):
         return ( ( np.sqrt(z) - np.sin(np.sqrt(z)) ) / (z)**(3/2) )
     elif (z < 0):
         return ( ( np.sinh(np.sqrt(-z)) - np.sqrt(-z) ) / ( -z )**(3/2) )
-    else (z == 0):
+    else:
         return 1/6
 
 def y(z, r1, r2, A):
