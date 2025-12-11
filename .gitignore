@@ -1,5 +1,7 @@
 references/
 
+src/gpu
+
 __pycache__/
 *.py[cod]
 *$py.class
