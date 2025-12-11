@@ -6,22 +6,6 @@ from utils.lambert import lam_solve
 from utils.plot_orbit import plot_two_orbits, plot_two_orbits_from_states, plot_three_orbits_from_states
 
 
-'''
-r1 = np.array([-1.09993019e+08, 9.83368937e+07,  0.00000000e+00]) #km
-r2 = np.array([-2.44947265e+08, -2.24360841e+07,  5.55318368e+06]) #km
-
-TOF =  17596714.00001049 #s
-mu = astroConstants(4) #km^3/s^2
-v1, v2 = lam_solve(r1, r2, TOF, mu)
-
-print(f"V1 : ", v1)
-print(f"V2 : ", v2)
-
-h, a, e, Om, i, om, theta = car2kep(r1, v1, mu)
-
-print(f"Semi major axis : ", a, "km")
-'''
-
 # heliocentric so, 
 mu = astroConstants(4)
 
@@ -36,7 +20,7 @@ h = np.sqrt( mu * a * ( 1 - e**2 ) )
 orb1 = (a, e, i, Om, om)
 
 
-# Let us take Jun 7, 2003 at 22:27:34
+# Time of arrival at Mars : Dec 28, 2003 at 14:26:08 (known from the ppt)
 arrival = np.array([2003, 12, 28, 14, 26, 8]) 
 arrival_mjd = date2mjd2000(arrival)
 
@@ -69,8 +53,13 @@ vm = np.asarray(vm).flatten()
 # now we proceed to do the lambert problem
 
 TOF = (arrival_mjd - departure_mjd)*24*60*60 # days -> seconds
-rt, vt = lam_solve(re, rm, TOF, mu, 10_000)
+vt, vt2 = lam_solve(re, rm, TOF, mu, 10_000)
 
-plot_two_orbits_from_states(re, ve, rt, vt, mu)
-print(rt)
+# something is wrong here 
+H, A, E, OMM, I, OM, THETA =  car2kep(vt, vt2, mu)
+
+orb3 = (A, E, I, OMM, OM)
+
+#plot_two_orbits(orb1, orb3, labels = ("Earth", "Transfer Orbit") )
 print(vt)
+print(vt2)
