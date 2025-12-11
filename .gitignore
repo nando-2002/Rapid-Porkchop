@@ -1,9 +1,5 @@
 references/
 
-src/gpu
-
-src/example.py
-src/example2.py
 
 __pycache__/
 *.py[cod]

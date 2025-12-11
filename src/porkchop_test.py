@@ -26,7 +26,7 @@ arrival_start_mjd = date2mjd2000(arrival_start)
 arrival_end_mjd = date2mjd2000(arrival_end)
 
 #create a range of departure and arrival dates
-npoints = 50 # points per axis
+npoints = 100 # points per axis
 dep_range = np.linspace(departure_start_mjd, departure_end_mjd, npoints)
 arr_range = np.linspace(arrival_start_mjd, arrival_end_mjd, npoints)
 
@@ -73,5 +73,5 @@ for outcount in range(npoints):
 end = time.time()
 # find the lowest delta-v solution
 del_v_lowest = np.min(delta_v_solutions[np.nonzero(delta_v_solutions)])
-print(np.round(del_v_lowest, 4))
-print(f"Time taken : ", np.round(end - start, 4), "s")
+print(f"Lowest Delta V Possible : ", np.round(del_v_lowest, 4), "km/s")
+print(f"Wall Time : ", np.round(end - start, 4), "s")
