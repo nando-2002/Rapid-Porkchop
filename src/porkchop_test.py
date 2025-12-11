@@ -1,4 +1,6 @@
 import numpy as np
+import time
+
 from utils.uplanet import uplanet
 from utils.utils import date2jd, date2mjd2000, jd2date, kep2car, car2kep
 from utils.astroConstants import astroConstants
@@ -24,11 +26,13 @@ arrival_start_mjd = date2mjd2000(arrival_start)
 arrival_end_mjd = date2mjd2000(arrival_end)
 
 #create a range of departure and arrival dates
-npoints = 25 # points per axis
+npoints = 50 # points per axis
 dep_range = np.linspace(departure_start_mjd, departure_end_mjd, npoints)
 arr_range = np.linspace(arrival_start_mjd, arrival_end_mjd, npoints)
 
 delta_v_solutions = np.zeros((npoints, npoints)) # to store delta-v values
+
+start = time.time()
 for outcount in range(npoints):
     for incount in range(npoints):
         dep_mjd = dep_range[outcount]
@@ -57,7 +61,7 @@ for outcount in range(npoints):
         
         # solve Lambert's problem
         try:
-            v1_sol, v2_sol = lam_solve(re, rm, tof, mu)
+            v1_sol, v2_sol = lam_solve(re, rm, tof, mu, 100)
             # Here you can store or process the solutions as needed
         except Exception as e:
             print(f"Lambert solver failed for dep {dep_mjd}, arr {arr_mjd}: {e}")
@@ -66,6 +70,8 @@ for outcount in range(npoints):
         # compute total delta v
         delta_v_solutions[outcount,incount] = np.linalg.norm(v1_sol - ve) + np.linalg.norm(vm - v2_sol)
 
+end = time.time()
 # find the lowest delta-v solution
 del_v_lowest = np.min(delta_v_solutions[np.nonzero(delta_v_solutions)])
-print(del_v_lowest)
+print(np.round(del_v_lowest, 4))
+print(f"Time taken : ", np.round(end - start, 4), "s")
