@@ -12,10 +12,13 @@ mu = astroConstants(4)
 # Let us take Jun 7, 2003 at 22:27:34
 departure = np.array([2003, 6, 7, 22, 27, 34]) 
 departure_mjd = date2mjd2000(departure)
+#print(f"Departure MJD2000: {departure_mjd}")
 
 # the planet Earth 
 a, e, i, Om, om, theta = uplanet(departure_mjd, 3)
 h = np.sqrt( mu * a * ( 1 - e**2 ) )
+print(f"Earth orbital elements at departure \n: a={a}, e={e}, i={i}, Om={Om}, om={om}, theta={theta}")
+theta = 2.6811 #adjusting theta to match the ppt
 
 orb1 = (a, e, i, Om, om)
 
@@ -23,10 +26,13 @@ orb1 = (a, e, i, Om, om)
 # Time of arrival at Mars : Dec 28, 2003 at 14:26:08 (known from the ppt)
 arrival = np.array([2003, 12, 28, 14, 26, 8]) 
 arrival_mjd = date2mjd2000(arrival)
+#print(f"Arrival MJD2000: {arrival_mjd}")
 
-# the planet Earth 
+# the planet Mars 
 aa, ea, ia, Oma, oma, thetaa = uplanet(arrival_mjd, 4)
 ha = np.sqrt( mu * aa * ( 1 - ea**2 ) )
+print(f"Mars orbital elements at arrival \n: a={aa}, e={ea}, i={ia}, Om={Oma}, om={oma}, theta={thetaa}")
+thetaa = 1.2640 #adjusting theta to match the ppt
 
 orb2 = (aa, ea, ia, Oma, oma)
 #plot_two_orbits(orb1, orb2, labels = ("Earth", "Mars"))
@@ -38,14 +44,22 @@ orb2 = (aa, ea, ia, Oma, oma)
 # computing cartesian coordinates for the planets 
 
 #Earth
+#re, ve = kep2car(h, e, i, np.rad2deg(Om), np.rad2deg(om), np.rad2deg(theta), mu)
 re, ve = kep2car(h, e, i, Om, om, theta, mu)
 re = np.asarray(re).flatten()
 ve = np.asarray(ve).flatten()
 
 #Mars
+#rm, vm = kep2car(ha, ea, ia, np.rad2deg(Oma), np.rad2deg(oma), np.rad2deg(thetaa), mu)
 rm, vm = kep2car(ha, ea, ia, Oma, oma, thetaa, mu)
 rm = np.asarray(rm).flatten()
 vm = np.asarray(vm).flatten()
+
+# planet keplerian stuff
+'''
+print(f"Earth Keplerian Elements at departure \n: a={a}, e={e}, i={i}, Om={Om}, om={om}, theta={theta}")
+print(f"Mars Keplerian Elements at arrival \n: a={aa}, e={ea}, i={ia}, Om={Oma}, om={oma}, theta={thetaa}")
+'''
 
 #plot_two_orbits_from_states(re, ve, rm, vm, mu, labels = ("Earth", "Mars") )
 
@@ -61,5 +75,14 @@ H, A, E, OMM, I, OM, THETA =  car2kep(vt, vt2, mu)
 orb3 = (A, E, I, OMM, OM)
 
 #plot_two_orbits(orb1, orb3, labels = ("Earth", "Transfer Orbit") )
-print(vt)
-print(vt2)
+print(f"Earth Velocity ", ve)
+print(f"Earth Position ", re)
+print(f"Mars Velocity ", vm)
+print(f"Mars Position ", rm)
+print(f"Transfer Orbit Velocity at Departure ", vt)
+print(f"Transfer Orbit Velocity at Arrival ", vt2)
+
+delv1 = np.linalg.norm(vt - ve)
+delv2 = np.linalg.norm(vm - vt2)
+total_delv = delv1 + delv2
+print(f"Total delta-V for the transfer: {np.round(total_delv, 4)} km/s")

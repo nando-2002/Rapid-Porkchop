@@ -149,10 +149,10 @@ def kep2car(h, e, i, Om, om, theta, mu):
     QxX = np.transpose(QXx)
     #print(f"Transformation Matrix \n", QxX)
 
-    r = np.transpose(np.dot(QxX, r_peri))
-    v = np.transpose(np.dot(QxX, v_peri))
+    R = np.transpose(np.dot(QxX, r_peri))
+    V = np.transpose(np.dot(QxX, v_peri))
 
-    return r, v
+    return R, V
 
 def jd2date(jd):
     '''
