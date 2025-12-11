@@ -164,7 +164,7 @@ def uplanet(mjd2000, ibody):
         
     # CONVERSION OF AU INTO KM, DEGREES INTO RAD
     kep[0]   = kep[0]*KM       # a [km]
-    kep[2:5] = kep[2:5]*DEG2RAD    # Transform from deg to rad
+    kep[2:6] = kep[2:6]*DEG2RAD    # Transform from deg to rad
     kep[5]   = np.mod(kep[5],2*np.pi)
     # XMU  = (XM*DEG2RAD/(864000*365250))^2*kep(1)^3
     phi    = kep[5]          # phi is the eccentric anomaly, uses kep(6)=M as a first guess
@@ -174,4 +174,13 @@ def uplanet(mjd2000, ibody):
         g_primo = (-1+kep[1]*np.cos(phi))
         phi = phi-g/g_primo   # Computes the eccentric anomaly kep
 
+    # Convert eccentric anomaly to true anomaly
+    theta = 2*np.arctan(np.sqrt((1+kep[1])/(1-kep[1]))*np.tan(phi/2))
+    kep[5] = theta
+
     return kep
+
+
+
+
+test_earth = uplanet(1253.4358101850376, 3)##

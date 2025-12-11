@@ -12,13 +12,13 @@ mu = astroConstants(4)
 # Let us take Jun 7, 2003 at 22:27:34
 departure = np.array([2003, 6, 7, 22, 27, 34]) 
 departure_mjd = date2mjd2000(departure)
-#print(f"Departure MJD2000: {departure_mjd}")
+print(f"Departure MJD2000: {departure_mjd}")
 
 # the planet Earth 
 a, e, i, Om, om, theta = uplanet(departure_mjd, 3)
 h = np.sqrt( mu * a * ( 1 - e**2 ) )
 print(f"Earth orbital elements at departure \n: a={a}, e={e}, i={i}, Om={Om}, om={om}, theta={theta}")
-theta = 2.6811 #adjusting theta to match the ppt
+#theta = 2.6811 #adjusting theta to match the ppt
 
 orb1 = (a, e, i, Om, om)
 
@@ -26,13 +26,13 @@ orb1 = (a, e, i, Om, om)
 # Time of arrival at Mars : Dec 28, 2003 at 14:26:08 (known from the ppt)
 arrival = np.array([2003, 12, 28, 14, 26, 8]) 
 arrival_mjd = date2mjd2000(arrival)
-#print(f"Arrival MJD2000: {arrival_mjd}")
+print(f"Arrival MJD2000: {arrival_mjd}")
 
 # the planet Mars 
 aa, ea, ia, Oma, oma, thetaa = uplanet(arrival_mjd, 4)
 ha = np.sqrt( mu * aa * ( 1 - ea**2 ) )
 print(f"Mars orbital elements at arrival \n: a={aa}, e={ea}, i={ia}, Om={Oma}, om={oma}, theta={thetaa}")
-thetaa = 1.2640 #adjusting theta to match the ppt
+#thetaa = 1.2640 #adjusting theta to match the ppt
 
 orb2 = (aa, ea, ia, Oma, oma)
 #plot_two_orbits(orb1, orb2, labels = ("Earth", "Mars"))
