@@ -179,8 +179,3 @@ def uplanet(mjd2000, ibody):
     kep[5] = theta
 
     return kep
-
-
-
-
-test_earth = uplanet(1253.4358101850376, 3)##
