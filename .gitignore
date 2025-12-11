@@ -2,6 +2,9 @@ references/
 
 src/gpu
 
+src/example.py
+src/example2.py
+
 __pycache__/
 *.py[cod]
 *$py.class
@@ -11,5 +14,3 @@ taichi-template/
 tests/
 
 assignments/
-
-src/test
