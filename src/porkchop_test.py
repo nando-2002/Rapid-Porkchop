@@ -26,7 +26,7 @@ arrival_start_mjd = date2mjd2000(arrival_start)
 arrival_end_mjd = date2mjd2000(arrival_end)
 
 #create a range of departure and arrival dates
-npoints = 50 # points per axis
+npoints = 100 # points per axis
 dep_range = np.linspace(departure_start_mjd, departure_end_mjd, npoints)
 arr_range = np.linspace(arrival_start_mjd, arrival_end_mjd, npoints)
 
