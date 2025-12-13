@@ -92,8 +92,8 @@ def gpu_porkchop_test():
         tof = (a_mjd - d_mjd) * 86400.0
 
         # call device Lambert
-        vt = cuda.local.array(3, dtype=cuda.float64)
-        vt2 = cuda.local.array(3, dtype=cuda.float64)
+        vt = cuda.local.array(3, dtype=float)
+        vt2 = cuda.local.array(3, dtype=float)
         lam_solve_dev(r1x, r1y, r1z,
                       r2x, r2y, r2z,
                       tof, mu_val,
