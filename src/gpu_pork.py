@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import os
 
 from utils.uplanet import uplanet
-from utils.utils import date2mjd2000, kep2car
+from utils.utils import date2mjd2000, kep2car, jd2date
 from utils.astroConstants import astroConstants
 from utils.lambert import lam_solve             # CPU reference
 from gpu.gpu_lambert import lam_solve_dev       # GPU device Lambert
