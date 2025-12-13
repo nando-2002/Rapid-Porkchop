@@ -1,0 +1,150 @@
+import time
+import numpy as np
+from numba import cuda
+
+from utils.uplanet import uplanet
+from utils.utils import date2mjd2000, kep2car
+from utils.astroConstants import astroConstants
+from utils.lambert import lam_solve             # CPU reference
+from gpu.gpu_lambert import lam_solve_dev       # GPU device Lambert
+
+def gpu_porkchop_test():
+    # heliocentric
+    mu = astroConstants(4)
+
+    # departure date range : 2 April 2003 to 1 August 2003
+    departure_start = np.array([2003, 4, 2, 0, 0, 0])
+    departure_end   = np.array([2003, 8, 1, 0, 0, 0])
+
+    # arrival date range : 1 Sept 2003 to 1 March 2004
+    arrival_start = np.array([2003, 9, 1, 0, 0, 0])
+    arrival_end   = np.array([2004, 3, 1, 0, 0, 0])
+
+    # convert to mjd2000
+    departure_start_mjd = date2mjd2000(departure_start)
+    departure_end_mjd   = date2mjd2000(departure_end)
+    arrival_start_mjd   = date2mjd2000(arrival_start)
+    arrival_end_mjd     = date2mjd2000(arrival_end)
+
+    # grid
+    npoints = 100  # same as original test
+    dep_range = np.linspace(departure_start_mjd, departure_end_mjd, npoints)
+    arr_range = np.linspace(arrival_start_mjd, arrival_end_mjd, npoints)
+
+    # precompute states on CPU
+    re_earth = np.empty((npoints, 3))
+    ve_earth = np.empty((npoints, 3))
+    rm_mars  = np.empty((npoints, 3))
+    vm_mars  = np.empty((npoints, 3))
+
+    print("Precomputing states...")
+    for i in range(npoints):
+        # Earth at departure
+        a, e, inc, Om, om, theta = uplanet(dep_range[i], 3)
+        h = np.sqrt(mu * a * (1 - e**2))
+        r, v = kep2car(h, e, inc, Om, om, theta, mu)
+        re_earth[i] = np.asarray(r).flatten()
+        ve_earth[i] = np.asarray(v).flatten()
+
+        # Mars at arrival
+        aa, ea, ia, Oma, oma, thetaa = uplanet(arr_range[i], 4)
+        ha = np.sqrt(mu * aa * (1 - ea**2))
+        r2, v2 = kep2car(ha, ea, ia, Oma, oma, thetaa, mu)
+        rm_mars[i] = np.asarray(r2).flatten()
+        vm_mars[i] = np.asarray(v2).flatten()
+
+    # allocate result
+    delta_v_solutions_gpu = np.zeros((npoints, npoints), dtype=np.float64)
+
+    # CUDA kernel
+    @cuda.jit
+    def porkchop_kernel(dep_mjd, arr_mjd,
+                        re_e, ve_e,
+                        rm_m, vm_m,
+                        mu_val,
+                        dv_out):
+        dep_idx, arr_idx = cuda.grid(2)
+        n_dep = dep_mjd.shape[0]
+        n_arr = arr_mjd.shape[0]
+        if dep_idx >= n_dep or arr_idx >= n_arr:
+            return
+
+        d_mjd = dep_mjd[dep_idx]
+        a_mjd = arr_mjd[arr_idx]
+        if a_mjd <= d_mjd:
+            return
+
+        # states
+        r1x = re_e[dep_idx, 0]
+        r1y = re_e[dep_idx, 1]
+        r1z = re_e[dep_idx, 2]
+        v1x = ve_e[dep_idx, 0]
+        v1y = ve_e[dep_idx, 1]
+        v1z = ve_e[dep_idx, 2]
+
+        r2x = rm_m[arr_idx, 0]
+        r2y = rm_m[arr_idx, 1]
+        r2z = rm_m[arr_idx, 2]
+        v2x = vm_m[arr_idx, 0]
+        v2y = vm_m[arr_idx, 1]
+        v2z = vm_m[arr_idx, 2]
+
+        tof = (a_mjd - d_mjd) * 86400.0
+
+        # call device Lambert
+        vt = cuda.local.array(3, dtype=cuda.float64)
+        vt2 = cuda.local.array(3, dtype=cuda.float64)
+        lam_solve_dev(r1x, r1y, r1z,
+                      r2x, r2y, r2z,
+                      tof, mu_val,
+                      vt, vt2,
+                      MAX_ITER=100,
+                      traj_pro=True)
+
+        # delta-v
+        dv1x = vt[0] - v1x
+        dv1y = vt[1] - v1y
+        dv1z = vt[2] - v1z
+        dv1 = math.sqrt(dv1x*dv1x + dv1y*dv1y + dv1z*dv1z)
+
+        dv2x = v2x - vt2[0]
+        dv2y = v2y - vt2[1]
+        dv2z = v2z - vt2[2]
+        dv2 = math.sqrt(dv2x*dv2x + dv2y*dv2y + dv2z*dv2z)
+
+        dv_out[dep_idx, arr_idx] = dv1 + dv2
+
+    # copy to GPU and run
+    d_dep = cuda.to_device(dep_range.astype(np.float64))
+    d_arr = cuda.to_device(arr_range.astype(np.float64))
+    d_re  = cuda.to_device(re_earth.astype(np.float64))
+    d_ve  = cuda.to_device(ve_earth.astype(np.float64))
+    d_rm  = cuda.to_device(rm_mars.astype(np.float64))
+    d_vm  = cuda.to_device(vm_mars.astype(np.float64))
+    d_dv  = cuda.to_device(delta_v_solutions_gpu)
+
+    threadsperblock = (16, 16)
+    blockspergrid_x = (npoints + threadsperblock[0] - 1) // threadsperblock[0]
+    blockspergrid_y = (npoints + threadsperblock[1] - 1) // threadsperblock[1]
+    blockspergrid = (blockspergrid_x, blockspergrid_y)
+
+    print("Running GPU porkchop...")
+    t0 = time.time()
+    porkchop_kernel[blockspergrid, threadsperblock](
+        d_dep, d_arr,
+        d_re, d_ve,
+        d_rm, d_vm,
+        mu,
+        d_dv
+    )
+    cuda.synchronize()
+    t1 = time.time()
+    delta_v_solutions_gpu = d_dv.copy_to_host()
+
+    finite = delta_v_solutions_gpu[np.nonzero(delta_v_solutions_gpu)]
+    dv_min_gpu = np.min(finite)
+    print(f"GPU Lowest Delta-V Possible: {dv_min_gpu:.4f} km/s")
+    print(f"GPU kernel time: {t1 - t0:.4f} s")
+
+if __name__ == "__main__":
+    gpu_porkchop_test()
