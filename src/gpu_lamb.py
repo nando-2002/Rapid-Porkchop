@@ -1,5 +1,5 @@
 import numpy as np
-from numba import cuda
+from numba import cuda, types
 
 from utils.uplanet import uplanet
 from utils.utils import date2mjd2000, kep2car, car2kep
@@ -54,8 +54,8 @@ def main():
     def lambert_kernel(R1, R2, mu_val, tof, V1_out, V2_out):
         i = cuda.grid(1)
         if i == 0:
-            v1 = cuda.local.array(3, dtype=float)
-            v2 = cuda.local.array(3, dtype=float)
+            v1 = cuda.local.array(3, dtype=types.float64)
+            v2 = cuda.local.array(3, dtype=types.float64)
             lam_solve_dev(R1[0], R1[1], R1[2],
                           R2[0], R2[1], R2[2],
                           tof, mu_val,

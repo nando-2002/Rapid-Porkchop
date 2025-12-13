@@ -1,6 +1,6 @@
 import time
 import numpy as np
-from numba import cuda
+from numba import cuda, types
 import math
 
 from utils.uplanet import uplanet
@@ -28,7 +28,7 @@ def gpu_porkchop_test():
     arrival_end_mjd     = date2mjd2000(arrival_end)
 
     # grid
-    npoints = 100  # same as original test
+    npoints = 1000  # same as original test
     dep_range = np.linspace(departure_start_mjd, departure_end_mjd, npoints)
     arr_range = np.linspace(arrival_start_mjd, arrival_end_mjd, npoints)
 
@@ -93,8 +93,8 @@ def gpu_porkchop_test():
         tof = (a_mjd - d_mjd) * 86400.0
 
         # call device Lambert
-        vt = cuda.local.array(3, dtype=float)
-        vt2 = cuda.local.array(3, dtype=float)
+        vt = cuda.local.array(3, dtype=types.float64)
+        vt2 = cuda.local.array(3, dtype=types.float64)
         lam_solve_dev(r1x, r1y, r1z,
                       r2x, r2y, r2z,
                       tof, mu_val,
