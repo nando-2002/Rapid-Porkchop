@@ -1,7 +1,10 @@
 # gpu/gpu_lambert.py
 
+import math
 import numpy as np
 from numba import cuda
+from numba.cuda import cudamath
+
 
 # =========================
 # CPU Lambert (wrapper)
@@ -23,11 +26,11 @@ def cpu_lamsolve(R1, R2, DELTAT, MU, MAXITER=1000, TRAJ="pro"):
 @cuda.jit(device=True)
 def _Cz(z):
     if z > 0.0:
-        sqrtz = cuda.sqrt(z)
-        return (1.0 - cuda.cos(sqrtz)) / z
+        sqrtz = cudamath.sqrt(z)
+        return (1.0 - cudamath.cos(sqrtz)) / z
     elif z < 0.0:
-        sqrtz = cuda.sqrt(-z)
-        return (cuda.cosh(sqrtz) - 1.0) / (-z)
+        sqrtz = cudamath.sqrt(-z)
+        return (cudamath.cosh(sqrtz) - 1.0) / (-z)
     else:
         return 0.5
 
@@ -35,11 +38,11 @@ def _Cz(z):
 @cuda.jit(device=True)
 def _Sz(z):
     if z > 0.0:
-        sqrtz = cuda.sqrt(z)
-        return (sqrtz - cuda.sin(sqrtz)) / (z * sqrtz)
+        sqrtz = cudamath.sqrt(z)
+        return (sqrtz - cudamath.sin(sqrtz)) / (z * sqrtz)
     elif z < 0.0:
-        sqrtz = cuda.sqrt(-z)
-        return (cuda.sinh(sqrtz) - sqrtz) / ((-z) * sqrtz)
+        sqrtz = cudamath.sqrt(-z)
+        return (cudamath.sinh(sqrtz) - sqrtz) / ((-z) * sqrtz)
     else:
         return 1.0 / 6.0
 
@@ -54,8 +57,8 @@ def _Fz(z, r1, r2, A, mu, delT):
     y = _yz(z, r1, r2, A)
     C = _Cz(z)
     S = _Sz(z)
-    # Note: A / y is positive here in valid transfers
-    return y * C * C * cuda.sqrt(C) * S * cuda.sqrt(A / y) - cuda.sqrt(mu) * delT
+    # y * C^(3/2) * S * sqrt(A / y) - sqrt(mu)*delT
+    return y * C * C * cudamath.sqrt(C) * S * cudamath.sqrt(A / y) - cudamath.sqrt(mu) * delT
 
 
 @cuda.jit(device=True)
@@ -64,9 +67,9 @@ def _Fpz(z, r1, r2, A, mu, delT):
     C = _Cz(z)
     if z != 0.0:
         # Approximate derivative; good enough for convergence
-        return cuda.sqrt(y / (4.0 * C * C * C))
+        return cudamath.sqrt(y / (4.0 * C * C * C))
     else:
-        return 0.5 * cuda.sqrt(y)
+        return 0.5 * cudamath.sqrt(y)
 
 
 @cuda.jit(device=True)
@@ -81,8 +84,8 @@ def device_lamsolve_total_dv(r1x, r1y, r1z,
     """
 
     # Magnitudes
-    r1mag = cuda.sqrt(r1x * r1x + r1y * r1y + r1z * r1z)
-    r2mag = cuda.sqrt(r2x * r2x + r2y * r2y + r2z * r2z)
+    r1mag = cudamath.sqrt(r1x * r1x + r1y * r1y + r1z * r1z)
+    r2mag = cudamath.sqrt(r2x * r2x + r2y * r2y + r2z * r2z)
 
     # Dot product and angle
     dot = r1x * r2x + r1y * r2y + r1z * r2z
@@ -92,22 +95,22 @@ def device_lamsolve_total_dv(r1x, r1y, r1z,
         cos_theta = 1.0
     elif cos_theta < -1.0:
         cos_theta = -1.0
-    theta = cuda.acos(cos_theta)
+    theta = cudamath.acos(cos_theta)
 
     # Prograde assumption (no cross-product needed here; add if you need retro)
-    sin_theta = cuda.sin(theta)
-    one_minus_cos = 1.0 - cuda.cos(theta)
+    sin_theta = cudamath.sin(theta)
+    one_minus_cos = 1.0 - cudamath.cos(theta)
     # Prevent division by zero in degenerate cases
     if one_minus_cos == 0.0:
         return 0.0
 
-    A = sin_theta * cuda.sqrt(r1mag * r2mag * (1.0 + cos_theta) / one_minus_cos)
+    A = sin_theta * cudamath.sqrt(r1mag * r2mag * (1.0 + cos_theta) / one_minus_cos)
 
     # Newton-Raphson on z
     z = 0.0
     for _ in range(maxiter):
         F = _Fz(z, r1mag, r2mag, A, mu, tof)
-        if cuda.fabs(F) < 1e-8:
+        if cudamath.fabs(F) < 1e-8:
             break
         Fp = _Fpz(z, r1mag, r2mag, A, mu, tof)
         if Fp == 0.0:
@@ -117,19 +120,19 @@ def device_lamsolve_total_dv(r1x, r1y, r1z,
     # Lagrange coefficients
     y = _yz(z, r1mag, r2mag, A)
     f = 1.0 - y / r1mag
-    g = A * cuda.sqrt(y / mu)
+    g = A * cudamath.sqrt(y / mu)
     gdot = 1.0 - y / r2mag
 
     # v1 and v2 magnitude (we only need norms)
     v1x = (r2x - f * r1x) / g
     v1y = (r2y - f * r1y) / g
     v1z = (r2z - f * r1z) / g
-    v1_norm = cuda.sqrt(v1x * v1x + v1y * v1y + v1z * v1z)
+    v1_norm = cudamath.sqrt(v1x * v1x + v1y * v1y + v1z * v1z)
 
     v2x = (gdot * r2x - r1x) / g
     v2y = (gdot * r2y - r1y) / g
     v2z = (gdot * r2z - r1z) / g
-    v2_norm = cuda.sqrt(v2x * v2x + v2y * v2y + v2z * v2z)
+    v2_norm = cudamath.sqrt(v2x * v2x + v2y * v2y + v2z * v2z)
 
     return v1_norm + v2_norm
 
@@ -162,7 +165,7 @@ def porkchop_kernel(depmjd, arrmjd,
     if arr_mjd <= dep_mjd:
         return
 
-    # Positions and velocities
+    # Positions and velocities (we only use positions for now)
     r1x = re_earth[dep_idx, 0]
     r1y = re_earth[dep_idx, 1]
     r1z = re_earth[dep_idx, 2]
