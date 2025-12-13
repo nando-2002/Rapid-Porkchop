@@ -5,7 +5,7 @@ from gpu.gpu_lambert import device_lamsolve_total_dv
 R1 = np.array([1.0e8, 0.0, 0.0])    # example state in km
 R2 = np.array([8.0e7, 2.0e7, 1.0e7])
 tof = 200 * 24 * 3600.0             # 200 days
-mu = astroConstants.mu
+mu = astroConstants(4)
 
 # CPU Lambert
 v1_cpu, v2_cpu = lamsolve(R1, R2, tof, mu)
