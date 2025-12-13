@@ -24,7 +24,7 @@ departure_end   = np.array([2003, 8, 1, 0, 0, 0])
 arrival_start   = np.array([2003, 9, 1, 0, 0, 0])
 arrival_end     = np.array([2004, 3, 1, 0, 0, 0])
 
-mu = astroConstants.mu  # km^3/s^2
+mu = astroConstants(4)  # km^3/s^2
 
 # -------------------------
 # Build time grids
