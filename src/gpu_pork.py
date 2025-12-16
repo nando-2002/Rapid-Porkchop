@@ -153,7 +153,7 @@ def gpu_porkchop_test():
                       r2x, r2y, r2z,
                       tof, mu_val,
                       vt, vt2,
-                      MAX_ITER=100,
+                      MAX_ITER=500,
                       traj_pro=True)
 
         # delta-v
