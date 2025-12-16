@@ -11,7 +11,7 @@ from utils.astroConstants import astroConstants
 from utils.lambert import lam_solve             # CPU reference
 from gpu.gpu_lambert import lam_solve_dev       # GPU device Lambert
 
-def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename=None, dpi=150, n_ticks=6, cmap='viridis'):
+def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename=None, dpi=150, n_ticks=6, cmap='rainbow'):
     # dv_matrix expected shape (n_dep, n_arr)
     Z = np.array(dv_matrix, dtype=float).copy()
     Z[Z == 0] = np.nan  # mask invalid entries
@@ -59,12 +59,12 @@ def gpu_porkchop_test():
     mu = astroConstants(4)
 
     # departure date range : 2 April 2003 to 1 August 2003
-    departure_start = np.array([2003, 4, 2, 0, 0, 0])
-    departure_end   = np.array([2003, 8, 1, 0, 0, 0])
+    departure_start = np.array([2023, 11, 1, 0, 0, 0])
+    departure_end   = np.array([2025, 1, 1, 0, 0, 0])
 
     # arrival date range : 1 Sept 2003 to 1 March 2004
-    arrival_start = np.array([2003, 9, 1, 0, 0, 0])
-    arrival_end   = np.array([2004, 3, 1, 0, 0, 0])
+    arrival_start = np.array([2024, 4, 1, 0, 0, 0])
+    arrival_end   = np.array([2025, 3, 1, 0, 0, 0])
 
     # convert to mjd2000
     departure_start_mjd = date2mjd2000(departure_start)
@@ -93,7 +93,7 @@ def gpu_porkchop_test():
         ve_earth[i] = np.asarray(v).flatten()
 
         # Mars at arrival
-        aa, ea, ia, Oma, oma, thetaa = uplanet(arr_range[i], 4)
+        aa, ea, ia, Oma, oma, thetaa = uplanet(arr_range[i], 1)
         ha = np.sqrt(mu * aa * (1 - ea**2))
         r2, v2 = kep2car(ha, ea, ia, Oma, oma, thetaa, mu)
         rm_mars[i] = np.asarray(r2).flatten()
