@@ -59,12 +59,12 @@ def gpu_porkchop_test():
     mu = astroConstants(4)
 
     # departure date range : 2 April 2003 to 1 August 2003
-    departure_start = np.array([2026, 6, 1, 0, 0, 0])
-    departure_end   = np.array([2028, 6, 1, 0, 0, 0])
+    departure_start = np.array([2025, 1, 1, 0, 0, 0])
+    departure_end   = np.array([2026, 1, 1, 0, 0, 0])
 
     # arrival date range : 1 Sept 2003 to 1 March 2004
-    arrival_start = np.array([2028, 6, 1, 0, 0, 0])
-    arrival_end   = np.array([2034, 1, 1, 0, 0, 0])
+    arrival_start = np.array([2036, 1, 1, 0, 0, 0])
+    arrival_end   = np.array([2055, 6, 1, 0, 0, 0])
 
     # convert to mjd2000
     departure_start_mjd = date2mjd2000(departure_start)
@@ -93,7 +93,7 @@ def gpu_porkchop_test():
         ve_earth[i] = np.asarray(v).flatten()
 
         # Mars at arrival
-        aa, ea, ia, Oma, oma, thetaa = uplanet(arr_range[i], 5)
+        aa, ea, ia, Oma, oma, thetaa = uplanet(arr_range[i], 8)
         ha = np.sqrt(mu * aa * (1 - ea**2))
         r2, v2 = kep2car(ha, ea, ia, Oma, oma, thetaa, mu)
         rm_mars[i] = np.asarray(r2).flatten()
