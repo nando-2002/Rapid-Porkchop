@@ -113,12 +113,12 @@ def gpu_porkchop_test():
         n_dep = dep_mjd.shape[0]
         n_arr = arr_mjd.shape[0]
         if dep_idx >= n_dep or arr_idx >= n_arr:
-            return 0
+            return
 
         d_mjd = dep_mjd[dep_idx]
         a_mjd = arr_mjd[arr_idx]
         if a_mjd <= d_mjd:
-            return 0
+            return
 
         # states
         r1x = re_e[dep_idx, 0]
