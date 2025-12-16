@@ -12,12 +12,12 @@ from utils.plot_orbit import plot_two_orbits, plot_two_orbits_from_states, plot_
 mu = astroConstants(4)
 
 # departure date range : 2 April 2003 to 1 August 2003
-departure_start = np.array([2003, 4, 2, 0, 0, 0]) 
-departure_end = np.array([2003, 8, 1, 0, 0, 0])
+departure_start = np.array([2023, 11, 1, 0, 0, 0])
+departure_end   = np.array([2025, 1, 1, 0, 0, 0])
 
-#arrival date range : 1 Sept 2003 to 1 March 2004
-arrival_start = np.array([2003, 9, 1, 0, 0, 0]) 
-arrival_end = np.array([2004, 3, 1, 0, 0, 0])
+# arrival date range : 1 Sept 2003 to 1 March 2004
+arrival_start = np.array([2024, 4, 1, 0, 0, 0])
+arrival_end   = np.array([2025, 3, 1, 0, 0, 0])
 
 #convert to mjd2000
 departure_start_mjd = date2mjd2000(departure_start)
@@ -50,7 +50,7 @@ for outcount in range(npoints):
         ve = np.asarray(ve).flatten()
         
         # Mars at arrival
-        aa, ea, ia, Oma, oma, thetaa = uplanet(arr_mjd, 4)
+        aa, ea, ia, Oma, oma, thetaa = uplanet(arr_mjd, 1)
         ha = np.sqrt( mu * aa * ( 1 - ea**2 ) )
         rm, vm = kep2car(ha, ea, ia, Oma, oma, thetaa, mu)
         rm = np.asarray(rm).flatten()
