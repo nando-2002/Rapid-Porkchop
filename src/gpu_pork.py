@@ -11,7 +11,7 @@ from utils.astroConstants import astroConstants
 from utils.lambert import lam_solve             # CPU reference
 from gpu.gpu_lambert import lam_solve_dev       # GPU device Lambert
 
-def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename=None, dpi=150, n_ticks=6, cmap='rainbow'):
+def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename=None, dpi=550, n_ticks=6, cmap='CMRmap'):
     # dv_matrix expected shape (n_dep, n_arr)
     Z = np.array(dv_matrix, dtype=float).copy()
     Z[Z == 0] = np.nan  # mask invalid entries
@@ -21,7 +21,7 @@ def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename=None, dpi=150, 
     fig, ax = plt.subplots(figsize=(10, 8))
     # ensure grid orientation matches (x: dep, y: arr)
     X, Y = np.meshgrid(dep_range, arr_range)
-    mesh = ax.pcolormesh(X, Y, Z.T, cmap=cmap, shading='auto')
+    mesh = ax.pcolormesh(X, Y, Z.T, cmap=cmap, shading='auto', vmin = 5, vmax = 10)
     cb = fig.colorbar(mesh, ax=ax)
     cb.set_label('Delta-V (km/s)')
 
@@ -58,7 +58,8 @@ def gpu_porkchop_test():
     # heliocentric
     mu = astroConstants(4)
 
-    ''' Neptune Case 
+    '''
+    # Neptune Case 
     # departure date range : 2 April 2003 to 1 August 2003
     departure_start = np.array([2025, 1, 1, 0, 0, 0])
     departure_end   = np.array([2026, 1, 1, 0, 0, 0])
@@ -67,8 +68,8 @@ def gpu_porkchop_test():
     arrival_start = np.array([2036, 1, 1, 0, 0, 0])
     arrival_end   = np.array([2055, 6, 1, 0, 0, 0])
     '''
-
-    ''' Uranus Case
+    '''
+    # Uranus Case
     # departure date range : 2 April 2003 to 1 August 2003
     departure_start = np.array([2027, 1, 1, 0, 0, 0])
     departure_end   = np.array([2029, 1, 1, 0, 0, 0])
@@ -76,7 +77,21 @@ def gpu_porkchop_test():
     # arrival date range : 1 Sept 2003 to 1 March 2004
     arrival_start = np.array([2031, 4, 1, 0, 0, 0])
     arrival_end   = np.array([2045, 12, 1, 0, 0, 0])
+    
     '''
+    
+    '''
+    # Mercury Case
+    # departure date range : 2 April 2003 to 1 August 2003
+    departure_start = np.array([2023, 11, 1, 0, 0, 0])
+    departure_end   = np.array([2025, 1, 1, 0, 0, 0])
+
+    # arrival date range : 1 Sept 2003 to 1 March 2004
+    arrival_start = np.array([2024, 4, 1, 0, 0, 0])
+    arrival_end   = np.array([2025, 3, 1, 0, 0, 0])
+    '''
+
+    # Mars Case
     # departure date range : 2 April 2003 to 1 August 2003
     departure_start = np.array([2003, 4, 2, 0, 0, 0])
     departure_end   = np.array([2003, 9, 1, 0, 0, 0])
@@ -84,6 +99,7 @@ def gpu_porkchop_test():
     # arrival date range : 1 Sept 2003 to 1 March 2004
     arrival_start = np.array([2003, 9, 1, 0, 0, 0])
     arrival_end   = np.array([2004, 3, 1, 0, 0, 0])
+
 
     # convert to mjd2000
     departure_start_mjd = date2mjd2000(departure_start)
@@ -213,7 +229,7 @@ def gpu_porkchop_test():
     print(f"GPU kernel time: {t1 - t0:.4f} s")
 
     # save porkchop figure to same directory
-    plot_fn = os.path.join(os.path.dirname(__file__), "gpu_porkchop.png")
+    plot_fn = os.path.join(os.path.dirname(__file__), "Mars.png")
     save_porkchop_plot(dep_range, arr_range, delta_v_solutions_gpu, filename=plot_fn)
 
 if __name__ == "__main__":
