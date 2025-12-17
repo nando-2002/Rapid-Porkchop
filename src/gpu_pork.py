@@ -79,7 +79,7 @@ def gpu_porkchop_test():
     '''
     # departure date range : 2 April 2003 to 1 August 2003
     departure_start = np.array([2003, 4, 2, 0, 0, 0])
-    departure_end   = np.array([2003, 8, 1, 0, 0, 0])
+    departure_end   = np.array([2003, 9, 1, 0, 0, 0])
 
     # arrival date range : 1 Sept 2003 to 1 March 2004
     arrival_start = np.array([2003, 9, 1, 0, 0, 0])
@@ -137,7 +137,7 @@ def gpu_porkchop_test():
         d_mjd = dep_mjd[dep_idx]
         a_mjd = arr_mjd[arr_idx]
         if a_mjd <= d_mjd:
-            return
+            dv_out[dep_idx, arr_idx] = 1000000
 
         # states
         r1x = re_e[dep_idx, 0]
