@@ -119,7 +119,7 @@ def gpu_porkchop_test():
         vm_mars[i] = np.asarray(v2).flatten()
 
     # allocate result
-    delta_v_solutions_gpu = np.zeros((npoints, npoints), dtype=np.float64)
+    delta_v_solutions_gpu = np.ones((npoints, npoints), dtype=np.float64)
 
     # CUDA kernel
     @cuda.jit
@@ -136,48 +136,49 @@ def gpu_porkchop_test():
 
         d_mjd = dep_mjd[dep_idx]
         a_mjd = arr_mjd[arr_idx]
-        if a_mjd <= d_mjd:
-            dv_out[dep_idx, arr_idx] = 1000000
+        if a_mjd <= d_mjd + 30:
+            dv_out[dep_idx, arr_idx] = 10000 #really high number 
 
-        # states
-        r1x = re_e[dep_idx, 0]
-        r1y = re_e[dep_idx, 1]
-        r1z = re_e[dep_idx, 2]
-        v1x = ve_e[dep_idx, 0]
-        v1y = ve_e[dep_idx, 1]
-        v1z = ve_e[dep_idx, 2]
+        else: 
+            # states
+            r1x = re_e[dep_idx, 0]
+            r1y = re_e[dep_idx, 1]
+            r1z = re_e[dep_idx, 2]
+            v1x = ve_e[dep_idx, 0]
+            v1y = ve_e[dep_idx, 1]
+            v1z = ve_e[dep_idx, 2]
 
-        r2x = rm_m[arr_idx, 0]
-        r2y = rm_m[arr_idx, 1]
-        r2z = rm_m[arr_idx, 2]
-        v2x = vm_m[arr_idx, 0]
-        v2y = vm_m[arr_idx, 1]
-        v2z = vm_m[arr_idx, 2]
+            r2x = rm_m[arr_idx, 0]
+            r2y = rm_m[arr_idx, 1]
+            r2z = rm_m[arr_idx, 2]
+            v2x = vm_m[arr_idx, 0]
+            v2y = vm_m[arr_idx, 1]
+            v2z = vm_m[arr_idx, 2]
 
-        tof = (a_mjd - d_mjd) * 86400.0
+            tof = (a_mjd - d_mjd) * 86400.0
 
-        # call device Lambert
-        vt = cuda.local.array(3, dtype=types.float64)
-        vt2 = cuda.local.array(3, dtype=types.float64)
-        lam_solve_dev(r1x, r1y, r1z,
-                      r2x, r2y, r2z,
-                      tof, mu_val,
-                      vt, vt2,
-                      MAX_ITER=500,
-                      traj_pro=True)
+            # call device Lambert
+            vt = cuda.local.array(3, dtype=types.float64)
+            vt2 = cuda.local.array(3, dtype=types.float64)
+            lam_solve_dev(r1x, r1y, r1z,
+                        r2x, r2y, r2z,
+                        tof, mu_val,
+                        vt, vt2,
+                        MAX_ITER=500,
+                        traj_pro=True)
 
-        # delta-v
-        dv1x = vt[0] - v1x
-        dv1y = vt[1] - v1y
-        dv1z = vt[2] - v1z
-        dv1 = math.sqrt(dv1x*dv1x + dv1y*dv1y + dv1z*dv1z)
+            # delta-v
+            dv1x = vt[0] - v1x
+            dv1y = vt[1] - v1y
+            dv1z = vt[2] - v1z
+            dv1 = math.sqrt(dv1x*dv1x + dv1y*dv1y + dv1z*dv1z)
 
-        dv2x = v2x - vt2[0]
-        dv2y = v2y - vt2[1]
-        dv2z = v2z - vt2[2]
-        dv2 = math.sqrt(dv2x*dv2x + dv2y*dv2y + dv2z*dv2z)
+            dv2x = v2x - vt2[0]
+            dv2y = v2y - vt2[1]
+            dv2z = v2z - vt2[2]
+            dv2 = math.sqrt(dv2x*dv2x + dv2y*dv2y + dv2z*dv2z)
 
-        dv_out[dep_idx, arr_idx] = dv1 + dv2
+            dv_out[dep_idx, arr_idx] = dv1 + dv2
 
     # copy to GPU and run
     d_dep = cuda.to_device(dep_range.astype(np.float64))
