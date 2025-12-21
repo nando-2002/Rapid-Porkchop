@@ -64,12 +64,6 @@ def call_solver(departureStart, departureEnd,
         r_arriv[i] = np.asarray(r2).flatten()
         v_arriv[i] = np.asarray(v2).flatten()
         
-        # Progress bar
-        if i % (nPoints // 10) == 0:
-            percent = (i / nPoints) * 100
-            print(f"Progress: {percent:.1f}%", end="\r")
-   
-    print()
     # allocate result array 
     delta_v_solutions_gpu = np.zeros((nPoints, nPoints), dtype=np.float32)
 
