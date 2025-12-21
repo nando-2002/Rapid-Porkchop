@@ -44,6 +44,7 @@ def call_solver(departureStart, departureEnd,
 
     # console output
     wid = os.get_terminal_size().columns
+    printLine()
     print(f"{nPoints} trajectories will be computed on the GPU ")
 
     print("Precomputing planet states")
@@ -62,12 +63,13 @@ def call_solver(departureStart, departureEnd,
         r2, v2 = kep2car(ha, ea, ia, Oma, oma, thetaa, mu)
         r_arriv[i] = np.asarray(r2).flatten()
         v_arriv[i] = np.asarray(v2).flatten()
-
+        
         # Progress bar
         if i % (nPoints // 10) == 0:
             percent = (i / nPoints) * 100
             print(f"Progress: {percent:.1f}%", end="\r")
-    
+   
+    print()
     # allocate result array 
     delta_v_solutions_gpu = np.zeros((nPoints, nPoints), dtype=np.float32)
 
@@ -152,7 +154,7 @@ def call_solver(departureStart, departureEnd,
     blockspergrid = (blockspergrid_x, blockspergrid_y)
 
     printLine()
-    print(f"Launching GPU kernel with {blockspergrid_x} x {blockspergrid_y} blocks of {threadsperblock[0]} x {threadsperblock[1]} threads".center(wid))
+    print(f"Launching GPU kernel with {blockspergrid_x} x {blockspergrid_y} blocks of {threadsperblock[0]} x {threadsperblock[1]} threads")
     printLine()
     # execute the kernel
     # start the timer

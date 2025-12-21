@@ -10,7 +10,7 @@ arrEnd   = np.array([2055, 6, 1, 0, 0, 0])
 pts = 1000
 
 planet1 = 3  # Earth
-planet2 = 4  # Mars
+planet2 = 5  # Mars
 
 call_solver(depStart, depEnd, arrStart, arrEnd, pts, planet1, planet2)
 
