@@ -44,9 +44,7 @@ def call_solver(departureStart, departureEnd,
 
     # console output
     wid = os.get_terminal_size().columns
-    printLine()
-    print(f"{nPoints} trajectories will be computed on the GPU ".center(wid))
-    printLine()
+    print(f"{nPoints} trajectories will be computed on the GPU ")
 
     print("Precomputing planet states")
     for i in range(nPoints):
@@ -66,7 +64,7 @@ def call_solver(departureStart, departureEnd,
         v_arriv[i] = np.asarray(v2).flatten()
 
         # Progress bar
-        if i % (nPoints // 25) == 0:
+        if i % (nPoints // 10) == 0:
             percent = (i / nPoints) * 100
             print(f"Progress: {percent:.1f}%", end="\r")
     
