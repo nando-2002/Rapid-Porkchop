@@ -10,3 +10,9 @@ taichi-template/
 tests/
 
 assignments/
+
+src/old
+
+src/img
+
+src/planet_visualizer.py
