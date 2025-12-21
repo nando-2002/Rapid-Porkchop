@@ -3,22 +3,9 @@
 import math
 from numba import cuda
 
-
-# =========================
-# CPU wrapper to original code
-# =========================
-
-def cpu_lam_solve(R1, R2, DELTA_T, MU, MAX_ITER=1000, TRAJ="pro"):
-    """
-    Call the original NumPy-based lam_solve in lambert.py for reference.
-    """
-    from utils.lambert import lam_solve  # adjust import to your package layout
-    return lam_solve(R1, R2, DELTA_T, MU, MAX_ITER=MAX_ITER, TRAJ=TRAJ)
-
-
-# =========================
-# CUDA device equivalents of C, S, y, F, Fp
-# =========================
+#-------------------------
+# CUDA Stumpff Functions
+#-------------------------
 
 @cuda.jit(device=True)
 def C_dev(z):
@@ -57,13 +44,13 @@ def y_dev(z, r1, r2, A):
 @cuda.jit(device=True)
 def F_dev(z, r1, r2, A, mu, delT):
     """
-    F(z) from your lambert.py, in scalar/device form.
+    F(z) from lambert.py, in scalar/device form.
     F(z) = ( (y/C)^1.5 ) * S + A*sqrt(y) - sqrt(mu)*delT
     """
     Cz = C_dev(z)
     yv = y_dev(z, r1, r2, A)
     if Cz == 0.0 or yv <= 0.0:
-        # Degenerate; just return something large
+        # Error Handling; just return something large
         return 1e9
     term1 = (yv / Cz) ** 1.5 * S_dev(z)
     term2 = A * math.sqrt(yv)
@@ -73,7 +60,7 @@ def F_dev(z, r1, r2, A, mu, delT):
 @cuda.jit(device=True)
 def Fp_dev(z, r1, r2, A, mu, delT):
     """
-    F'(z) from your lambert.py, scalar/device form.
+    F'(z) from lambert.py, scalar/device form.
     """
     if z == 0.0:
         y0 = y_dev(0.0, r1, r2, A)
@@ -87,7 +74,7 @@ def Fp_dev(z, r1, r2, A, mu, delT):
         Sz = S_dev(z)
         yz_val = y_dev(z, r1, r2, A)
         if Cz == 0.0 or yz_val <= 0.0:
-            return 1e9
+            return 1e9 # Error handling 
 
         # (y/C)^(3/2)
         base = yz_val / Cz
@@ -108,16 +95,16 @@ def Fp_dev(z, r1, r2, A, mu, delT):
         return part1 + part2
 
 
-# =========================
-# CUDA device Lambert solver
-# =========================
+#-------------------------
+# CUDA Lambert solver
+#-------------------------
 
 @cuda.jit(device=True)
-def lam_solve_dev(R1x, R1y, R1z,
+def lam_solve_cuda(R1x, R1y, R1z,
                   R2x, R2y, R2z,
                   DELTA_T, MU,
                   V1, V2,
-                  MAX_ITER=1000,
+                  MAX_ITER= 250,
                   traj_pro=True):
     """
     Device version of lam_solve.
@@ -141,7 +128,6 @@ def lam_solve_dev(R1x, R1y, R1z,
         cos_th = -1.0
     THETA = math.acos(cos_th)
 
-    # Match your CPU logic:
     # if (R_CROSS[2] >= 0) and (TRAJ == 'retro'): THETA = 2π - THETA
     # elif (R_CROSS[2] < 0) and (TRAJ == 'pro'):  THETA = 2π - THETA
     if RCROSS_z >= 0.0 and (not traj_pro):
@@ -152,7 +138,7 @@ def lam_solve_dev(R1x, R1y, R1z,
     # Semi-major axis factor A
     denom = 1.0 - math.cos(THETA)
     if denom == 0.0:
-        # Degenerate; set some default or return
+        # Error handling; set some default or return
         V1[0] = 0.0; V1[1] = 0.0; V1[2] = 0.0
         V2[0] = 0.0; V2[1] = 0.0; V2[2] = 0.0
         return
@@ -164,12 +150,12 @@ def lam_solve_dev(R1x, R1y, R1z,
     while F_dev(z, R1_MAG, R2_MAG, A, MU, DELTA_T) < 0.0:
         z += 0.1
         if z > 1.0e6:
-            # mimic ValueError; just return zeros
+            # mimic ValueError and return 0 
             V1[0] = 0.0; V1[1] = 0.0; V1[2] = 0.0
             V2[0] = 0.0; V2[1] = 0.0; V2[2] = 0.0
             return
 
-    # Newton iterations
+    # Newton Raphson iterations
     for _ in range(MAX_ITER):
         Fz_val = F_dev(z, R1_MAG, R2_MAG, A, MU, DELTA_T)
         Fpz_val = Fp_dev(z, R1_MAG, R2_MAG, A, MU, DELTA_T)
@@ -196,3 +182,5 @@ def lam_solve_dev(R1x, R1y, R1z,
     V2[0] = inv_g * (gdot * R2x - R1x)
     V2[1] = inv_g * (gdot * R2y - R1y)
     V2[2] = inv_g * (gdot * R2z - R1z)
+
+    # there is no return for CUDA functions
