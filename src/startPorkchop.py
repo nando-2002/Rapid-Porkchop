@@ -31,4 +31,4 @@ else:
 plot_fn = os.path.join(os.path.dirname(__file__), "Mars.png")
 
 from utils.plotting import save_porkchop_plot
-save_porkchop_plot(depRange, arrRange, soln, filename=plot_fn, dpi = 600)
+save_porkchop_plot(depRange, arrRange, soln, plot_fn, 5, 10, dpi = 600)

@@ -4,7 +4,7 @@ import numpy as np
 
 from utils.utils import jd2date
 
-def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename=None, dpi=550, n_ticks=6, cmap='CMRmap'):
+def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename, Pmin, Pmax, dpi, n_ticks=6, cmap='CMRmap'):
     # dv_matrix expected shape (n_dep, n_arr)
     Z = np.array(dv_matrix, dtype=float).copy()
     Z[Z == 0] = np.nan  # mask invalid entries
@@ -14,7 +14,7 @@ def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename=None, dpi=550, 
     fig, ax = plt.subplots(figsize=(10, 8))
     # ensure grid orientation matches (x: dep, y: arr)
     X, Y = np.meshgrid(dep_range, arr_range)
-    mesh = ax.pcolormesh(X, Y, Z.T, cmap=cmap, shading='auto', vmin = 5, vmax = 10)
+    mesh = ax.pcolormesh(X, Y, Z.T, cmap=cmap, shading='auto', vmin = Pmin, vmax = Pmax)
     cb = fig.colorbar(mesh, ax=ax)
     cb.set_label('Delta-V (km/s)')
 
