@@ -17,16 +17,23 @@ soln, depRange, arrRange, r1, v1, r2, v2 = call_solver(depStart, depEnd,
                                                        pts, planet1, planet2)
 
 
-# min delta v
-min_dv = np.min(soln[np.nonzero(soln)])
+# min delta v (ignore zeros, NaNs and infinities)
+valid_mask = np.isfinite(soln) & (soln > 0)
+if not np.any(valid_mask):
+    raise ValueError("No valid (non-zero, finite) delta-v values found in the solution matrix.")
+min_dv = np.min(soln[valid_mask])
 
 # date corresponding to min delta v
-min_idx = np.where(soln == min_dv)
-dep_mjd_min = depRange[min_idx[0][0]]
-arr_mjd_min = arrRange[min_idx[1][0]]
+# use argmin on a masked version to avoid floating-point equality pitfalls and empty matches
+flat_index = np.argmin(np.where(valid_mask, soln, np.inf))
+min_idx = np.unravel_index(flat_index, soln.shape)
+dep_mjd_min = depRange[min_idx[0]]
+arr_mjd_min = arrRange[min_idx[1]]
+
 print(f"Minimum delta-v: {min_dv:.4f} km/s")
 print(f"Departure MJD: {dep_mjd_min:.4f}")
 print(f"Arrival MJD: {arr_mjd_min:.4f}")
+
 
 from utils.utils import mjd2000_to_date
 print(f"Departure Date: {mjd2000_to_date(dep_mjd_min)}")
