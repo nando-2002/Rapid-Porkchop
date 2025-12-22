@@ -148,7 +148,7 @@ def call_solver(departureStart, departureEnd,
     blockspergrid = (blockspergrid_x, blockspergrid_y)
 
     printLine()
-    print(f"Launching GPU kernel with {blockspergrid_x} x {blockspergrid_y} blocks of {threadsperblock[0]} x {threadsperblock[1]} threads")
+    print(f"Launching GPU")
     printLine()
     # execute the kernel
     # start the timer
