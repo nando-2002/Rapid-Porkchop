@@ -3,11 +3,11 @@ import numpy as np
 
 from gpu.call_solver import call_solver
 
-depStart = np.array([2025, 1, 1, 0, 0, 0])
-depEnd   = np.array([2026, 1, 1, 0, 0, 0])
+depStart = np.array([2030, 1, 1, 0, 0, 0])
+depEnd   = np.array([2061, 1, 1, 0, 0, 0])
 
-arrStart = np.array([2036, 1, 1, 0, 0, 0])
-arrEnd   = np.array([2055, 6, 1, 0, 0, 0])
+arrStart = np.array([2030, 1, 1, 0, 0, 0])
+arrEnd   = np.array([2061, 1, 1, 0, 0, 0])
 
 pts = 2500
 
