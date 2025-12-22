@@ -28,7 +28,7 @@ def plot_porkchop(dep_range, arr_range, delta_v_matrix, dep_min, arr_min, min_dv
         # convert MJD2000 -> JD -> Y, M, D and format as YYYYMMDD
         jd = mjd + 2400000.5 + 51544.5
         Y_, M_, D_, hrs, mins, secs = jd2date(jd)
-        return f"{int(Y_):04d}{int(M_):02d}{int(D_):02d}"
+        return f"{int(Y_):04d} - {int(M_):02d} - {int(D_):02d}"
 
     # set reasonable ticks (use 6 ticks by default)
     n_ticks = 6
