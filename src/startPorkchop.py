@@ -19,8 +19,13 @@ soln, depRange, arrRange, r1, v1, r2, v2 = call_solver(depStart, depEnd,
                                                        pts, planet1, planet2)
 
 finite = soln[np.nonzero(soln)]
-minimum = np.min(finite)
-print(f"GPU Lowest Delta-V Possible: {minimum:.4f} km/s")
+# remove NaN entries so the minimum ignores NaNs
+finite = finite[~np.isnan(finite)]
+if finite.size == 0:
+    print("GPU Lowest Delta-V Possible: no valid solution")
+else:
+    minimum = np.min(finite)
+    print(f"GPU Lowest Delta-V Possible: {minimum:.4f} km/s")
 
 # save porkchop figure to same directory
 plot_fn = os.path.join(os.path.dirname(__file__), "Mars.png")

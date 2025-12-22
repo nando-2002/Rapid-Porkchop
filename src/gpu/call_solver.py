@@ -149,7 +149,7 @@ def call_solver(departureStart, departureEnd,
 
     printLine()
     print(f"Launching GPU")
-    printLine()
+    
     # execute the kernel
     # start the timer
     t_gpu_start = time.time()
@@ -163,12 +163,10 @@ def call_solver(departureStart, departureEnd,
     t_gpu_end = time.time()
 
     delta_v_solutions_gpu = dv_out.copy_to_host()
-    min_dv = np.min(delta_v_solutions_gpu)
     
     #print(f"GPU Lowest Delta-V Possible: {min_dv:.4f} km/s")
     #print(f"GPU kernel time: {t_gpu_end - t_gpu_start:.4f} s")
 
-    printLine()
     print(f"GPU kernel execution time: {t_gpu_end - t_gpu_start:.2f} seconds")
 
     return delta_v_solutions_gpu, dep_range, arr_range, r_dep, v_dep, r_arriv, v_arriv
