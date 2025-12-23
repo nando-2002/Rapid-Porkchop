@@ -27,6 +27,13 @@ else:
     minimum = np.min(finite)
     print(f"GPU Lowest Delta-V Possible: {minimum:.4f} km/s")
 
+# Date of Minimum Delta-V
+min_index = np.unravel_index(np.argmin(soln, where=~np.isnan(soln)), soln.shape)
+dep_min = depRange[min_index[0]]
+arr_min = arrRange[min_index[1]]
+print(f"Departure Date of Minimum Delta-V: {dep_min[0]:04}-{dep_min[1]:02}-{dep_min[2]:02}")
+print(f"Arrival Date of Minimum Delta-V: {arr_min[0]:04}-{arr_min[1]:02}-{arr_min[2]:02}")
+
 # save porkchop figure to same directory
 plot_fn = os.path.join(os.path.dirname(__file__), "Mars.png")
 
