@@ -23,50 +23,6 @@ def call_solver(departureStart, departureEnd,
                 arrivalStart, arrivalEnd, 
                 nPoints, planetID1, planetID2):
 
-    # Heliocentric, therefore mu = muSun
-    mu = astroConstants(4)
-
-    # mjd2000 conversion
-    departure_start_mjd = date2mjd2000(departureStart)
-    departure_end_mjd = date2mjd2000(departureEnd)
-    arrival_start_mjd = date2mjd2000(arrivalStart)
-    arrival_end_mjd = date2mjd2000(arrivalEnd)
-
-    # grid init
-    dep_range = np.linspace(departure_start_mjd, departure_end_mjd, nPoints)
-    arr_range = np.linspace(arrival_start_mjd, arrival_end_mjd, nPoints)
-
-    # planet states array allocation 
-    r_dep = np.empty((nPoints, 3))
-    v_dep = np.empty((nPoints, 3))
-    r_arriv = np.empty((nPoints, 3))
-    v_arriv = np.empty((nPoints, 3))
-
-    # console output
-    wid = os.get_terminal_size().columns
-    printLine()
-    print(f"{nPoints} trajectories will be computed on the GPU ")
-
-    print("Precomputing planet states")
-    for i in range(nPoints):
-        
-        # Departure Planet
-        a, e, inc, Om, om, theta = uplanet(dep_range[i], planetID1)
-        h = np.sqrt(mu * a * (1 - e**2))
-        r, v = kep2car(h, e, inc, Om, om, theta, mu)
-        r_dep[i] = np.asarray(r).flatten()
-        v_dep[i] = np.asarray(v).flatten()
-
-        # Arrival Planet
-        aa, ea, ia, Oma, oma, thetaa = uplanet(arr_range[i], planetID2)
-        ha = np.sqrt(mu * aa * (1 - ea**2))
-        r2, v2 = kep2car(ha, ea, ia, Oma, oma, thetaa, mu)
-        r_arriv[i] = np.asarray(r2).flatten()
-        v_arriv[i] = np.asarray(v2).flatten()
-        
-    # allocate result array 
-    delta_v_solutions_gpu = np.zeros((nPoints, nPoints), dtype=np.float32)
-
 
     # GPU kernel (function) is defined within the call_solver function
     # due to the limitation of the GPU being unable to return values
@@ -132,6 +88,50 @@ def call_solver(departureStart, departureEnd,
 
             dv_out[dep_idx, arr_idx] = dv1 + dv2   
 
+    # Heliocentric, therefore mu = muSun
+    mu = astroConstants(4)
+
+    # mjd2000 conversion
+    departure_start_mjd = date2mjd2000(departureStart)
+    departure_end_mjd = date2mjd2000(departureEnd)
+    arrival_start_mjd = date2mjd2000(arrivalStart)
+    arrival_end_mjd = date2mjd2000(arrivalEnd)
+
+    # grid init
+    dep_range = np.linspace(departure_start_mjd, departure_end_mjd, nPoints)
+    arr_range = np.linspace(arrival_start_mjd, arrival_end_mjd, nPoints)
+
+    # planet states array allocation 
+    r_dep = np.empty((nPoints, 3))
+    v_dep = np.empty((nPoints, 3))
+    r_arriv = np.empty((nPoints, 3))
+    v_arriv = np.empty((nPoints, 3))
+
+    # console output
+    wid = os.get_terminal_size().columns
+    printLine()
+    print(f"{nPoints} trajectories will be computed on the GPU ")
+
+    print("Precomputing planet states")
+    for i in range(nPoints):
+        
+        # Departure Planet
+        a, e, inc, Om, om, theta = uplanet(dep_range[i], planetID1)
+        h = np.sqrt(mu * a * (1 - e**2))
+        r, v = kep2car(h, e, inc, Om, om, theta, mu)
+        r_dep[i] = np.asarray(r).flatten()
+        v_dep[i] = np.asarray(v).flatten()
+
+        # Arrival Planet
+        aa, ea, ia, Oma, oma, thetaa = uplanet(arr_range[i], planetID2)
+        ha = np.sqrt(mu * aa * (1 - ea**2))
+        r2, v2 = kep2car(ha, ea, ia, Oma, oma, thetaa, mu)
+        r_arriv[i] = np.asarray(r2).flatten()
+        v_arriv[i] = np.asarray(v2).flatten()
+        
+    # allocate result array 
+    delta_v_solutions_gpu = np.zeros((nPoints, nPoints), dtype=np.float32)
+
     # copy inputs to GPU
     dep_mjd_gpu = cuda.to_device(dep_range.astype(np.float32))
     arr_mjd_gpu = cuda.to_device(arr_range.astype(np.float32))
@@ -170,5 +170,3 @@ def call_solver(departureStart, departureEnd,
     print(f"GPU kernel execution time: {t_gpu_end - t_gpu_start:.2f} seconds")
 
     return delta_v_solutions_gpu, dep_range, arr_range, r_dep, v_dep, r_arriv, v_arriv
-
-    
