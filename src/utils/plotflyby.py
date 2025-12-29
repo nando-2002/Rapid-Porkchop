@@ -124,6 +124,26 @@ def save_flyby_isosurface(results, filename=None, level=None, min_dv_threshold=3
 
     found_any = False
 
+    def _iter_contour_polygons(cs):
+        """Yield Nx2 arrays of contour vertices from a ContourSet `cs`.
+        Handles both modern Matplotlib (`cs.collections`) and older `cs.allsegs`.
+        """
+        # Preferred API (modern Matplotlib)
+        if hasattr(cs, 'collections'):
+            for coll in cs.collections:
+                for path in coll.get_paths():
+                    verts = path.vertices
+                    if verts.shape[0] >= 3:
+                        yield verts
+        else:
+            # Fallback API: cs.allsegs is a list (one element per level)
+            allsegs = getattr(cs, 'allsegs', None)
+            if allsegs and len(allsegs) > 0:
+                for seg in allsegs[0]:
+                    verts = np.asarray(seg)
+                    if verts.shape[0] >= 3:
+                        yield verts
+
     # XY slices (varying arrival index)
     for k in range(0, V.shape[2], z_step):
         z_val = arr_years[k]
@@ -131,17 +151,13 @@ def save_flyby_isosurface(results, filename=None, level=None, min_dv_threshold=3
         slice2d[np.isnan(slice2d)] = max_val + 1.0
         ax2.clear()
         cs = ax2.contour(X_xy, Y_xy, slice2d, levels=[level])
-        for coll in cs.collections:
-            for path in coll.get_paths():
-                verts2d = path.vertices
-                if verts2d.shape[0] < 3:
-                    continue
-                poly3d = np.column_stack((verts2d[:, 0], verts2d[:, 1], np.full(len(verts2d), z_val)))
-                poly = Poly3DCollection([poly3d], alpha=alpha)
-                poly.set_facecolor(facecolor)
-                poly.set_edgecolor('none')
-                ax.add_collection3d(poly)
-                found_any = True
+        for verts2d in _iter_contour_polygons(cs):
+            poly3d = np.column_stack((verts2d[:, 0], verts2d[:, 1], np.full(len(verts2d), z_val)))
+            poly = Poly3DCollection([poly3d], alpha=alpha)
+            poly.set_facecolor(facecolor)
+            poly.set_edgecolor('none')
+            ax.add_collection3d(poly)
+            found_any = True
 
     # XZ slices (varying flyby index)
     for j in range(0, V.shape[1], y_step):
@@ -150,17 +166,13 @@ def save_flyby_isosurface(results, filename=None, level=None, min_dv_threshold=3
         slice2d[np.isnan(slice2d)] = max_val + 1.0
         ax2.clear()
         cs = ax2.contour(X_xz, Z_xz, slice2d, levels=[level])
-        for coll in cs.collections:
-            for path in coll.get_paths():
-                verts2d = path.vertices
-                if verts2d.shape[0] < 3:
-                    continue
-                poly3d = np.column_stack((verts2d[:, 0], np.full(len(verts2d), y_val), verts2d[:, 1]))
-                poly = Poly3DCollection([poly3d], alpha=alpha)
-                poly.set_facecolor(facecolor)
-                poly.set_edgecolor('none')
-                ax.add_collection3d(poly)
-                found_any = True
+        for verts2d in _iter_contour_polygons(cs):
+            poly3d = np.column_stack((verts2d[:, 0], np.full(len(verts2d), y_val), verts2d[:, 1]))
+            poly = Poly3DCollection([poly3d], alpha=alpha)
+            poly.set_facecolor(facecolor)
+            poly.set_edgecolor('none')
+            ax.add_collection3d(poly)
+            found_any = True
 
     # YZ slices (varying departure index)
     for i in range(0, V.shape[0], x_step):
@@ -169,17 +181,13 @@ def save_flyby_isosurface(results, filename=None, level=None, min_dv_threshold=3
         slice2d[np.isnan(slice2d)] = max_val + 1.0
         ax2.clear()
         cs = ax2.contour(Y_yz, Z_yz, slice2d, levels=[level])
-        for coll in cs.collections:
-            for path in coll.get_paths():
-                verts2d = path.vertices
-                if verts2d.shape[0] < 3:
-                    continue
-                poly3d = np.column_stack((np.full(len(verts2d), x_val), verts2d[:, 0], verts2d[:, 1]))
-                poly = Poly3DCollection([poly3d], alpha=alpha)
-                poly.set_facecolor(facecolor)
-                poly.set_edgecolor('none')
-                ax.add_collection3d(poly)
-                found_any = True
+        for verts2d in _iter_contour_polygons(cs):
+            poly3d = np.column_stack((np.full(len(verts2d), x_val), verts2d[:, 0], verts2d[:, 1]))
+            poly = Poly3DCollection([poly3d], alpha=alpha)
+            poly.set_facecolor(facecolor)
+            poly.set_edgecolor('none')
+            ax.add_collection3d(poly)
+            found_any = True
 
     plt.close(fig2)
 
