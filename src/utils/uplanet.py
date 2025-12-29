@@ -1,4 +1,5 @@
 import numpy as np
+from ephAsteroid import eph_asteroid_2009hc98
 
 def uplanet(mjd2000, ibody):
     '''
@@ -161,6 +162,9 @@ def uplanet(mjd2000, ibody):
         #
         case 10:
             kep = [0, 0, 0, 0, 0, 0]
+
+        case 11:
+            kep, meh, meh2 = eph_asteroid_2009hc98(mjd2000)
         
     # CONVERSION OF AU INTO KM, DEGREES INTO RAD
     kep[0]   = kep[0]*KM       # a [km]
