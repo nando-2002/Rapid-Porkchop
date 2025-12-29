@@ -1,5 +1,5 @@
 import numpy as np
-from ephAsteroid import eph_asteroid_2009hc98
+from utils.ephAsteroid import eph_asteroid_2009hc98
 
 def uplanet(mjd2000, ibody):
     '''
@@ -53,7 +53,7 @@ def uplanet(mjd2000, ibody):
 
     kep = np.empty(6)
 
-    if (ibody > 10 or ibody < 1):
+    if (ibody > 11 or ibody < 1):
         raise ValueError("The supplied planet ID does not match anything in the database")
 
 

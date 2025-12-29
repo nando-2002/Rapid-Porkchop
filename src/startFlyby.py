@@ -1,8 +1,8 @@
 # startFlyby.py (same location as startPorkchop.py)
 from gpu.call_flyby import call_flyby
-from utils.plotflyby import save_flyby_plot, get_optimal_dates, save_flyby_density_plot
+from utils.plotflyby import save_flyby_plot, get_optimal_dates 
 
-soln, dep, fly, arr, r, v = call_flyby(50, 3, 4, 11)  # Earth->Mars flyby->Jupiter
+soln, dep, fly, arr, r, v = call_flyby(500, 3, 4, 11)  # Earth->Mars flyby->Jupiter
 results = (soln, dep, fly, arr)
 
 # Print optimal dates to console

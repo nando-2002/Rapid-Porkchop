@@ -30,7 +30,7 @@ def get_optimal_dates(results):
 
     return _fmt_jd(dep_jd), _fmt_jd(fly_jd), _fmt_jd(arr_jd), min_val
 
-def save_flyby_plot(results, filename=None, min_dv_threshold=50, n_levels=10, dpi=600):
+def save_flyby_plot(results, filename=None, min_dv_threshold=15, n_levels=10, dpi=600):
     """Create 3D isosurface-style plot of optimal flyby trajectories."""
     if filename is None:
         filename = os.path.join(os.path.dirname(__file__), "flyby_3d.png")
