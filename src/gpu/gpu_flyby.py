@@ -48,7 +48,7 @@ def compute_rp(delta, v_inf_minus, v_inf_plus, mu, rp_guess, max_iter=50, tol=1e
         rp_new = rp - f / df_dr
         
         # Bounds check (Earth example: >6571km = 6371+200km alt)
-        if rp_new < 6571.0 or rp_new > 1e6:
+        if rp_new < 3590.0 or rp_new > 1e6:
             return -1.0
             
         if abs(rp_new - rp) < tol:
