@@ -4,7 +4,7 @@ import matplotlib.pyplot as plt
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
 from utils.utils import jd2date
 
-def save_flyby_plot(results, filename=None, min_dv_threshold=15.0, n_levels=10, dpi=600):
+def save_flyby_plot(results, filename=None, min_dv_threshold=30, n_levels=10, dpi=600):
     """Create 3D isosurface-style plot of optimal flyby trajectories."""
     if filename is None:
         filename = os.path.join(os.path.dirname(__file__), "flyby_3d.png")
