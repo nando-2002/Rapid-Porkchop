@@ -2,7 +2,7 @@
 from gpu.call_flyby import call_flyby
 from utils.plotflyby import save_flyby_plot, get_optimal_dates 
 
-soln, dep, fly, arr, r, v = call_flyby(500, 3, 4, 11)  # Earth->Mars flyby->Jupiter
+soln, dep, fly, arr, r, v = call_flyby(200, 3, 4, 11)  # Earth->Mars flyby->Jupiter
 results = (soln, dep, fly, arr)
 
 # Print optimal dates to console
