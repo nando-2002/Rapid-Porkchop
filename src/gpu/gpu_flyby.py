@@ -62,7 +62,12 @@ def compute_rp(delta, v_inf_minus, v_inf_plus, mu, rp_guess, max_iter=50, tol=1e
 def powered_flyby_dv(v_inf_minus_x, v_inf_minus_y, v_inf_minus_z,
                      v_inf_plus_x, v_inf_plus_y, v_inf_plus_z,
                      mu_planet):
-    """Compute powered flyby ΔV at periapsis."""
+    """Compute powered flyby ΔV at periapsis.
+
+    Expects component inputs where:
+      - v_inf_minus_* = (spacecraft heliocentric incoming) - (planet heliocentric)
+      - v_inf_plus_*  = (spacecraft heliocentric outgoing)  - (planet heliocentric)
+    """
     # Excess speed magnitudes
     v_inf_minus = math.sqrt(v_inf_minus_x*v_inf_minus_x + 
                            v_inf_minus_y*v_inf_minus_y + 

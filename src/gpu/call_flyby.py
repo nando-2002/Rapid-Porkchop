@@ -21,12 +21,12 @@ def call_flyby(nPoints, depPlanet, flyPlanet, arrPlanet):
     mu_flyby = astroConstants(flyPlanet)
     
     printLine()
-    print(f"Computing {nPoints}^3 = {nPoints**3:,} flyby trajectories (2030-2061)")
+    print(f"Computing {nPoints}^3 = {nPoints**3:,} flyby trajectories (2030-2045)")
     printLine()
     
     # Time grids: 1 Jan 2030 to 1 Jan 2061
     dep_range = np.linspace(date2mjd2000([2030,1,1,0,0,0]), 
-                           date2mjd2000([2061,1,1,0,0,0]), nPoints)
+                           date2mjd2000([2045,1,1,0,0,0]), nPoints)
     fly_range = dep_range.copy()
     arr_range = dep_range.copy()
     
@@ -119,9 +119,10 @@ def call_flyby(nPoints, depPlanet, flyPlanet, arrPlanet):
         v_inf_minus_y = vt1_fly[1] - vfy
         v_inf_minus_z = vt1_fly[2] - vfz
         
-        v_inf_plus_x = vfx - vt2_fly[0]  # Note sign flip for outgoing
-        v_inf_plus_y = vfy - vt2_fly[1]
-        v_inf_plus_z = vfz - vt2_fly[2]
+        # Outgoing v_inf should be (spacecraft heliocentric outgoing) - (planet heliocentric)
+        v_inf_plus_x = vt2_fly[0] - vfx
+        v_inf_plus_y = vt2_fly[1] - vfy
+        v_inf_plus_z = vt2_fly[2] - vfz
         
         dv_flyby = powered_flyby_dv(v_inf_minus_x, v_inf_minus_y, v_inf_minus_z,
                                    v_inf_plus_x, v_inf_plus_y, v_inf_plus_z, mu_flyby)
