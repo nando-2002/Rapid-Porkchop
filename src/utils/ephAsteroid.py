@@ -89,9 +89,9 @@ def eph_asteroid_2009hc98(time_mjd2000):
     return kep, mass, M
 
 # Example usage
-if __name__ == "__main__":
-    time = 60200  # MJD2000 (epoch time)
-    kep, mass, M = eph_asteroid_2009hc98(time)
-    print("Keplerian elements:", kep)
-    print("Mass [kg]:", mass)
-    print("Mean anomaly [rad]:", M)
+# if __name__ == "__main__":
+#     time = 60200  # MJD2000 (epoch time)
+#     kep, mass, M = eph_asteroid_2009hc98(time)
+#     print("Keplerian elements:", kep)
+#     print("Mass [kg]:", mass)
+#     print("Mean anomaly [rad]:", M)

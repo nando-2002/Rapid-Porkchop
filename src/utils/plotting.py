@@ -34,14 +34,14 @@ def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename, Pmin, Pmax, dp
     ax.set_ylabel('Arrival date (YYYY-MM-DD)')
 
     # annotate minimum
-    if np.any(~np.isnan(Z)):
-        min_val = np.nanmin(Z)
-        min_idx = np.unravel_index(np.nanargmin(Z), Z.shape)
-        min_dep_mjd = dep_range[min_idx[0]]
-        min_arr_mjd = arr_range[min_idx[1]]
-        ax.plot(min_dep_mjd, min_arr_mjd, 'ro', markersize=5)
-        ax.annotate(f"Min {min_val:.2f} km/s", (min_dep_mjd, min_arr_mjd),
-                    textcoords="offset points", xytext=(10, -10), color='white')
+    #if np.any(~np.isnan(Z)):
+    #    min_val = np.nanmin(Z)
+    #    min_idx = np.unravel_index(np.nanargmin(Z), Z.shape)
+    #    min_dep_mjd = dep_range[min_idx[0]]
+    #    min_arr_mjd = arr_range[min_idx[1]]
+    #    ax.plot(min_dep_mjd, min_arr_mjd, 'ro', markersize=5)
+    #    ax.annotate(f"Min {min_val:.2f} km/s", (min_dep_mjd, min_arr_mjd),
+    #               textcoords="offset points", xytext=(10, -10), color='white')
 
     fig.savefig(filename, dpi=dpi, bbox_inches='tight')
     plt.close(fig)
