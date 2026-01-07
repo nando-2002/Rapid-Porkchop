@@ -15,6 +15,6 @@ This implementation uses the Universal Variables approach to solve the Lambert p
 Install Python (3.8 - 3.13) and requirements. It is recommended to install Python with the 'conda' package manager
 
 ```powershell
-conda install numpy
-conda install matplotlib
-conda install -c conda-forge numba-cuda "cuda-version=12"
+conda install numpy;
+conda install matplotlib;
+conda install -c conda-forge numba-cuda "cuda-version=12";
