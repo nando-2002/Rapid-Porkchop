@@ -35,7 +35,6 @@ def car2kep(r, v, mu):
     Returns: 
         h_mag, semi_major_axis, ecc_mag, ran, inclin, arg_per, true_anom
 
-    THIS COMMENT IS PENDING I AM TOO LAZY TO WRITE THIS NOW
 
     Author: 
         Prthik Karthikeyan 07/12/25
