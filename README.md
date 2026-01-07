@@ -45,6 +45,6 @@ python startPorkchop.py
 The output image should appear in the same directory as the run file.
 
 <p align = "center">
-<img src="/src/outputs-example/Jupiter-Asteroid-MegaZoom.png" width="600" alt="Diagram">
+<img src="/src/outputs-example/Jupiter-Asteroid-MegaZoom.png" width="1000" alt="Diagram">
 
 </p>
