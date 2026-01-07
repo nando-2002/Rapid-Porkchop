@@ -4,22 +4,6 @@ GPU-accelerated Lambert solver for interplanetary trajectory design (porkchop-st
 
 This project implements the Lambert problem (two-point boundary value problem) as presented in *Orbital Mechanics for Engineering Students* by Howard Curtis, and parallelizes the lambert solver loop on NVIDIA GPUs using Numba-CUDA.
 
----
-
-## Features
-
-- Solves the two-point boundary value Lambert problem (departure/arrival state via TOF).
-- Universal Variables formulation.
-- Parallel execution on NVIDIA GPUs via Numba-CUDA.
-
----
-
-## What it does
-
-Given two position vectors (departure and arrival) and a time-of-flight (TOF), compute the feasible transfer orbit(s) (velocity vectors).
-
----
-
 ## Requirements
 
 - Python **3.8 – 3.13**
@@ -55,7 +39,7 @@ conda install -c conda-forge numba-cuda "cuda-version=12"
 Run:
 
 ```powershell
-python src/startPorkchop.py
+python startPorkchop.py
 ```
 
 The output image should appear in the same directory as the run file.
