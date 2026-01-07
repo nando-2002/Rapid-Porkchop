@@ -1,5 +1,5 @@
 import numpy as np
-from utils.ephAsteroid import eph_asteroid_2009hc98
+from utils.ephAsteroid import eph_asteroids
 
 def uplanet(mjd2000, ibody):
     '''
@@ -25,6 +25,7 @@ def uplanet(mjd2000, ibody):
             8:   Neptune
             9:   Pluto
             10:  Sun
+            11.  Asteroid 2009 HC98
     
     Returns:
     kep : ndarray 
@@ -53,7 +54,7 @@ def uplanet(mjd2000, ibody):
 
     kep = np.empty(6)
 
-    if (ibody > 11 or ibody < 1):
+    if (ibody > 12 or ibody < 1):
         raise ValueError("The supplied planet ID does not match anything in the database")
 
 
@@ -164,7 +165,20 @@ def uplanet(mjd2000, ibody):
             kep = [0, 0, 0, 0, 0, 0]
 
         case 11:
-            kep, meh, meh2 = eph_asteroid_2009hc98(mjd2000)
+            kepB, temp1, temp2 = eph_asteroids(time_mjd2000=mjd2000,
+                                         asteroid_id=257323,
+                                         csv_path="AsteroidsElements_num.csv",
+                                         skiprows=0,
+                                         usecols=[2,3,4,5,6,7,8,9],
+                                         id_is_one_based=True)
+            
+        case 12:
+            kepB, temp1, temp2 = eph_asteroids(time_mjd2000=mjd2000,
+                                         asteroid_id=523649,
+                                         csv_path="AsteroidsElements_num.csv",
+                                         skiprows=0,
+                                         usecols=[2,3,4,5,6,7,8,9],
+                                         id_is_one_based=True)
         
     # CONVERSION OF AU INTO KM, DEGREES INTO RAD
     kep[0]   = kep[0]*KM       # a [km]
@@ -182,4 +196,7 @@ def uplanet(mjd2000, ibody):
     theta = 2*np.arctan(np.sqrt((1+kep[1])/(1-kep[1]))*np.tan(phi/2))
     kep[5] = theta
 
-    return kep
+    if (ibody < 11):
+        return kep
+    else:
+        return kepB

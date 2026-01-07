@@ -1,97 +1,91 @@
 import numpy as np
 
-def eph_asteroid_2009hc98(time_mjd2000):
+# constants replacing astroConstants(2) and astroConstants(4)
+AU_KM = 149597870.7                 # km
+MU_SUN_KM3_S2 = 1.32712440018e11    # km^3/s^2
+
+_AST_DATA = None 
+
+def _load_asteroid_data_csv(csv_path, *, delimiter=",", skiprows=0, usecols=None):
     """
-    Ephemerides for asteroid 2009 HC98 from JPL data (ID 257323)
-    
-    Parameters:
-    -----------
-    time_mjd2000 : float
-        Time of ephemeris in MJD2000 [days]
-    
-    Returns:
-    --------
-    kep : array [6]
-        Keplerian parameters: [a, e, i, Om, om, f]
-        a: semimajor axis [km]
-        e: eccentricity
-        i: inclination [rad]
-        Om: RAAN [rad] 
-        om: argument of pericenter [rad]
-        f: true anomaly [rad]
-    mass : float
-        Mass [kg] (estimated from H magnitude)
-    M : float
-        Mean anomaly at time [rad]
+    Expected columns (numeric, in this exact order):
+      [epoch_mjd, sma_AU, ecc, inc_deg, RAAN_deg, argPer_deg, M0_deg, H_mag]
     """
-    
-    # Hardcoded JPL data for 2009 HC98
-    epoch0_mjd = 60200           # Epoch MJD
-    a_AU = 3.0669                # Semi-major axis [AU]
-    e = 0.2287                   # Eccentricity
-    inc_deg = 4.9604             # Inclination [deg]
-    Om_deg = 124.1222            # RAAN [deg]
-    w_deg = 151.6065             # Argument of pericenter [deg]
-    M0_deg = 212.3667            # Mean anomaly at epoch [deg]
-    H = 16.6600                  # Absolute magnitude
-    
-    # Constants (no scipy)
-    AU = 1.495978707e8           # km
-    mu_sun_km = 1.3271244e11     # km^3/s^2 (solar gravitational parameter)
-    pi = np.pi
-    
-    # Convert to consistent units
-    a = a_AU * AU                # Semi-major axis [km]
-    inc = np.deg2rad(inc_deg)    # Inclination [rad]
-    node = np.deg2rad(Om_deg)    # RAAN [rad]
-    w = np.deg2rad(w_deg)        # Argument of pericenter [rad]
-    M0 = np.deg2rad(M0_deg)      # Mean anomaly at epoch [rad]
-    
-    pi2 = 2 * pi
-    
-    # Orbital parameters
-    orbital_period = pi2 * np.sqrt(a**3 / mu_sun_km)  # seconds
-    mean_motion = pi2 / orbital_period                # rad/s
-    
-    # Time conversions
+    global _AST_DATA
+    if _AST_DATA is None:
+        _AST_DATA = np.loadtxt(
+            csv_path, delimiter=delimiter, skiprows=skiprows, usecols=usecols, dtype=float
+        )
+        if _AST_DATA.ndim == 1:
+            _AST_DATA = _AST_DATA[None, :]
+    return _AST_DATA
+
+def eph_asteroids(time_mjd2000, asteroid_id, csv_path,
+                  *, id_is_one_based=True, delimiter=",", skiprows=0, usecols=None):
+    data = _load_asteroid_data_csv(
+        csv_path, delimiter=delimiter, skiprows=skiprows, usecols=usecols
+    )
+
+    idx = asteroid_id - 1 if id_is_one_based else asteroid_id
+    row = data[idx, :]
+
+    # CSV order per your note / MATLAB comment: epoch,sma,ecc,inc,RAAN,argPer,M,H [file:3]
+    epoch0_mjd = row[0]
+    sma_km = row[1] * AU_KM
+    ecc = row[2]
+    inc = np.deg2rad(row[3])
+    node = np.deg2rad(row[4])   # RAAN
+    w = np.deg2rad(row[5])      # argument of periapsis
+    M0 = np.deg2rad(row[6])     # mean anomaly at epoch
+    H = row[7]
+
+    pi2 = 2.0 * np.pi
+    orbital_period = pi2 * np.sqrt((sma_km**3) / MU_SUN_KM3_S2)  # s
+    mean_motion = pi2 / orbital_period                           # rad/s
+
+    # MATLAB: epoch0_mjd2000 = epoch0_mjd - 51544.5 [file:3]
     epoch0_mjd2000 = epoch0_mjd - 51544.5
-    epoch_mjd2000 = time_mjd2000
-    
-    # Mean anomaly at requested time
-    delta_t = (epoch_mjd2000 - epoch0_mjd2000) * 86400  # seconds
-    M = M0 + mean_motion * delta_t                      # rad
-    
-    # Reduce to [0, 2pi]
-    nrev = np.fix(M / pi2)
-    M = M - nrev * pi2
-    M = np.mod(M, pi2)
-    
-    # Solve Kepler's equation (Newton iteration, max 5 iterations)
-    # Fixed initial guess (original had division by zero issue)
-    Ek = M                          # Simple initial guess
-    for i in range(5):
-        F1 = Ek - e * np.sin(Ek) - M
-        Ek = Ek - F1 / (1 - e * np.cos(Ek))
-    
-    # True anomaly from eccentric anomaly
-    f = 2 * np.arctan2(np.sqrt(1 + e) * np.tan(Ek / 2), np.sqrt(1 - e))
-    f = np.mod(f, pi2)
-    
-    # Keplerian elements
-    kep = np.array([a, e, inc, node, w, f])
-    
-    # Mass estimation from H-magnitude (H-d relation)
-    d = (-2.522e-2 * H**5 + 3.2961 * H**4 - 1.7249e2 * H**3 + 
-         4.5231e3 * H**2 - 5.9509e4 * H + 3.1479e5)  # km
-    density = 2100  # kg/m^3
-    mass = (4 * pi / 3) * (0.5 * d * 1000)**3 * density  # kg
-    
+
+    # Mean anomaly at requested time [file:3]
+    M = M0 + mean_motion * (time_mjd2000 - epoch0_mjd2000) * 86400.0
+    M = M - np.fix(M / pi2) * pi2  # reduce to first revolution [file:3]
+
+    # Kepler solve: 5 Newton iterations (same as MATLAB) [file:3]
+    Ek = M + ecc * np.sin(M) / (1.0 - np.sin(M + ecc) + np.sin(M))
+    for _ in range(5):
+        F1 = ecc * np.cos(Ek) - 1.0
+        Ek = Ek + (Ek - ecc * np.sin(Ek) - M) / F1
+
+    # True anomaly [file:3]
+    f = 2.0 * np.arctan2(
+        np.sqrt(1.0 + ecc) * np.tan(0.5 * Ek),
+        np.sqrt(1.0 - ecc)
+    )
+    f = np.mod(f, 2.0 * np.pi)
+
+    kep = np.array([sma_km, ecc, inc, node, w, f], dtype=float)
+    M = np.mod(M, 2.0 * np.pi)
+
+    # H -> diameter polynomial (copied exactly) [file:3]
+    d = (-2.522e-2 * H**5
+         + 3.2961 * H**4
+         - 1.7249e2 * H**3
+         + 4.5231e3 * H**2
+         - 5.9509e4 * H
+         + 3.1479e5)
+
+    density = 2.0 * 1000.0  # MATLAB: 2 kg/dm^3 -> 2000 kg/m^3 [file:3]
+    mass = 4.0 * np.pi / 3.0 * (0.5 * d)**3 * density
+
     return kep, mass, M
 
-# Example usage
-# if __name__ == "__main__":
-#     time = 60200  # MJD2000 (epoch time)
-#     kep, mass, M = eph_asteroid_2009hc98(time)
-#     print("Keplerian elements:", kep)
-#     print("Mass [kg]:", mass)
-#     print("Mean anomaly [rad]:", M)
+# kep, mass, M = eph_asteroids(
+#     time_mjd2000=0,
+#     asteroid_id=257323,
+#     csv_path="AsteroidsElements_num.csv",
+#     skiprows=0,
+#     usecols=[2,3,4,5,6,7,8,9],  # adjust to your file
+#     id_is_one_based=True
+# )
+
+# print(kep)

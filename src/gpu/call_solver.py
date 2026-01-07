@@ -14,10 +14,9 @@ import os
 # Functions from sibling folder /utils/
 
 from utils.uplanet import uplanet
-from utils.utils import date2mjd2000, kep2car, jd2date
+from utils.utils import date2mjd2000, kep2car, jd2date, printLine
 from utils.astroConstants import astroConstants
 from gpu.gpu_lambert import lam_solve_cuda
-from utils.console import printLine
 
 def call_solver(departureStart, departureEnd, 
                 arrivalStart, arrivalEnd, 

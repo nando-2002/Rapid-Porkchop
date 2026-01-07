@@ -1,5 +1,20 @@
 import numpy as np
+import os
 np.seterr(divide='ignore', invalid='ignore')
+
+def printLine():
+    '''
+    Prints a line across the terminal for better readability
+
+    Author: 
+        Prthik Karthikeyan 25/12/2025
+    '''
+    
+    columns = os.get_terminal_size().columns
+    columns = int(columns / 2)
+    for i in range(columns):
+        print("-", end = "")
+    print("")
 
 def car2kep(r, v, mu):
 

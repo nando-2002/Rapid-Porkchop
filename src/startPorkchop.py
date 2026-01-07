@@ -3,11 +3,16 @@ import numpy as np
 
 from gpu.call_solver import call_solver
 
+
+'''
+Earth to Mars Porkchop (Zoomed)
+'''
+
 depStart = np.array([2030, 1, 1, 0, 0, 0])
-depEnd   = np.array([2034, 1, 1, 0, 0, 0])
+depEnd   = np.array([2040, 1, 1, 0, 0, 0])
 
 arrStart = np.array([2030, 1, 1, 0, 0, 0])
-arrEnd   = np.array([2034, 1, 1, 0, 0, 0])
+arrEnd   = np.array([2040, 1, 1, 0, 0, 0])
 
 pts = 2500
 
@@ -21,7 +26,7 @@ soln, depRange, arrRange, r1, v1, r2, v2 = call_solver(depStart, depEnd,
 finite = soln[np.nonzero(soln)]
 # remove NaN entries so the minimum ignores NaNs
 finite = finite[~np.isnan(finite)]
-if finite.size == 0:
+if finite.size == 0: 
     print("GPU Lowest Delta-V Possible: no valid solution")
 else:
     minimum = np.min(finite)
@@ -33,19 +38,55 @@ plot_fn = os.path.join(os.path.dirname(__file__), "Earth-Mars-MegaZoom.png")
 from utils.plotting import save_porkchop_plot
 save_porkchop_plot(depRange, arrRange, soln, plot_fn, 5, 20, dpi = 600)
 
+#----------------------------------------------------------------------------
+'''
+Earth to Mars Porkchop (Coarse)
+'''
 
-'''
-Now doing Mars to Asteroid Porkchop
-'''
 depStart = np.array([2030, 1, 1, 0, 0, 0])
-depEnd   = np.array([2034, 1, 1, 0, 0, 0])
+depEnd   = np.array([2061, 1, 1, 0, 0, 0])
 
 arrStart = np.array([2030, 1, 1, 0, 0, 0])
-arrEnd   = np.array([2034, 1, 1, 0, 0, 0])
+arrEnd   = np.array([2061, 1, 1, 0, 0, 0])
 
 pts = 2500
 
-planet1 = 3  # Mars
+planet1 = 3  # Earth
+planet2 = 4  # Mars
+
+soln, depRange, arrRange, r1, v1, r2, v2 = call_solver(depStart, depEnd,
+                                                       arrStart, arrEnd,
+                                                       pts, planet1, planet2)
+
+finite = soln[np.nonzero(soln)]
+# remove NaN entries so the minimum ignores NaNs
+finite = finite[~np.isnan(finite)]
+if finite.size == 0: 
+    print("GPU Lowest Delta-V Possible: no valid solution")
+else:
+    minimum = np.min(finite)
+    print(f"GPU Lowest Delta-V Possible: {minimum:.4f} km/s")
+
+# save porkchop figure to same directory
+plot_fn = os.path.join(os.path.dirname(__file__), "Earth-Mars-Coarse.png")
+
+from utils.plotting import save_porkchop_plot
+save_porkchop_plot(depRange, arrRange, soln, plot_fn, 5, 20, dpi = 600)
+
+
+#----------------------------------------------------------------------------
+'''
+Now doing Mars to Asteroid Porkchop (Zoomed)
+'''
+depStart = np.array([2030, 1, 1, 0, 0, 0])
+depEnd   = np.array([2040, 1, 1, 0, 0, 0])
+
+arrStart = np.array([2030, 1, 1, 0, 0, 0])
+arrEnd   = np.array([2040, 1, 1, 0, 0, 0])
+
+pts = 2500
+
+planet1 = 4  # Mars
 planet2 = 11  # Asteroid
 
 soln, depRange, arrRange, r1, v1, r2, v2 = call_solver(depStart, depEnd,
@@ -63,6 +104,76 @@ else:
 
 # save porkchop figure to same directory
 plot_fn = os.path.join(os.path.dirname(__file__), "Mars-Asteroid-MegaZoom.png")
+
+from utils.plotting import save_porkchop_plot
+save_porkchop_plot(depRange, arrRange, soln, plot_fn, 10, 30, dpi = 600)
+
+
+#----------------------------------------------------------------------------
+'''
+Now doing Mars to Asteroid Porkchop (Coarse)
+'''
+depStart = np.array([2030, 1, 1, 0, 0, 0])
+depEnd   = np.array([2061, 1, 1, 0, 0, 0])
+
+arrStart = np.array([2030, 1, 1, 0, 0, 0])
+arrEnd   = np.array([2061, 1, 1, 0, 0, 0])
+
+pts = 2500
+
+planet1 = 4  # Mars
+planet2 = 11  # Asteroid
+
+soln, depRange, arrRange, r1, v1, r2, v2 = call_solver(depStart, depEnd,
+                                                       arrStart, arrEnd,
+                                                       pts, planet1, planet2)
+
+finite = soln[np.nonzero(soln)]
+# remove NaN entries so the minimum ignores NaNs
+finite = finite[~np.isnan(finite)]
+if finite.size == 0:
+    print("GPU Lowest Delta-V Possible: no valid solution")
+else:
+    minimum = np.min(finite)
+    print(f"GPU Lowest Delta-V Possible: {minimum:.4f} km/s")
+
+# save porkchop figure to same directory
+plot_fn = os.path.join(os.path.dirname(__file__), "Mars-Asteroid-Coarse.png")
+
+from utils.plotting import save_porkchop_plot
+save_porkchop_plot(depRange, arrRange, soln, plot_fn, 10, 30, dpi = 600)
+
+
+
+'''
+Now doing Jupiter to Asteroid Porkchop (Anahi Group)
+'''
+depStart = np.array([2030, 1, 1, 0, 0, 0])
+depEnd   = np.array([2035, 1, 1, 0, 0, 0])
+
+arrStart = np.array([2030, 1, 1, 0, 0, 0])
+arrEnd   = np.array([2061, 1, 1, 0, 0, 0])
+
+pts = 2500
+
+planet1 = 5  # Jupiter
+planet2 = 12  # Asteroid
+
+soln, depRange, arrRange, r1, v1, r2, v2 = call_solver(depStart, depEnd,
+                                                       arrStart, arrEnd,
+                                                       pts, planet1, planet2)
+
+finite = soln[np.nonzero(soln)]
+# remove NaN entries so the minimum ignores NaNs
+finite = finite[~np.isnan(finite)]
+if finite.size == 0:
+    print("GPU Lowest Delta-V Possible: no valid solution")
+else:
+    minimum = np.min(finite)
+    print(f"GPU Lowest Delta-V Possible: {minimum:.4f} km/s")
+
+# save porkchop figure to same directory
+plot_fn = os.path.join(os.path.dirname(__file__), "Jupiter-Asteroid-MegaZoom.png")
 
 from utils.plotting import save_porkchop_plot
 save_porkchop_plot(depRange, arrRange, soln, plot_fn, 10, 30, dpi = 600)
