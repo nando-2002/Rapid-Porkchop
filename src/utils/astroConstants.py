@@ -2,6 +2,160 @@ import numpy as np
 
 
 def astroConstants(index):
+    '''
+    astroConstants.m - Returns astrodynamic-related physical constants.
+
+    PROTOTYPE:
+    out = astro_constants(in)
+
+    DESCRIPTION:
+    Returns a row vector of constants, in which there is the corresponding
+    constant for each element of the input vector.
+
+    List of identifiers:
+        Generic astronomical constants:
+            1   Universal gravity constant (G) (from DITAN and Horizon) [km^3/(kg*s^2)]
+            2   Astronomical Unit (AU) (from DE405) [km]
+                Note: The value for 1 au is from the IAU 2012 Resolution B1.
+        Sun related:
+            3   Sun mean radius (from DITAN) [km]
+            4   Sun planetary constant (mu = mass * G) (from DE405) [km^3/s^2]
+            81  Energy flux density of the Sun (from Wertz, SMAD) [W/m^2 at 1 AU]
+        Other:
+            5   Speed of light in the vacuum (definition in the SI and Horizon) [km/s]
+            6   Standard free fall (acceleration due to gravity on Earth's surface at sea level)
+                (from Wertz, SMAD) [m/s^2]
+            7   Mean distance Earth-Moon (from Wertz, SMAD) [km]
+            8   Obliquity (angle) of the ecliptic at Epoch 2000 (from Horizon) [rad]
+            9   Gravitational field constant of the Earth (from Wertz, SMAD, taken from JGM-2).
+                This should be used in conjunction with Earth radius = 6378.1363 km
+            82  Earth days in a Julian year y = 365.25 d (from Horizon)
+
+        Planetary constants of the planets (mu = mass * G) [km^3/s^2]:
+            11  Me      (from DE405)
+            12  V       (from DE405)
+            13  E       (from DE405)
+            14  Ma      (from DE405)
+            15  J       (from DE405)
+            16  S       (from DE405)
+            17  U       (from DE405)
+            18  N       (from DE405)
+            19  P       (from DE405)
+            20  Moon    (from DE405)
+
+        Mean radius of the planets [km]:
+            21  Me      (from Horizon)
+            22  V       (from Horizon)
+            23  E       (from Horizon)
+            24  Ma      (from Horizon)
+            25  J       (from Horizon)
+            26  S       (from Horizon)
+            27  U       (from Horizon)
+            28  N       (from Horizon)
+            29  P       (from Horizon)
+            30  Moon    (from Horizon)
+
+        J2 Gravitational Harmonic coefficient [-]:
+            31  Me      (from NASA Fact Sheet)
+            32  V       (from NASA Fact Sheet)
+            33  E       (from NASA Fact Sheet)
+            34  Ma      (from NASA Fact Sheet)
+            35  J       (from NASA Fact Sheet)
+            36  S       (from NASA Fact Sheet)
+            37  U       (from NASA Fact Sheet)
+            38  N       (from NASA Fact Sheet)
+            39  P       (from NASA Fact Sheet)
+            40  Moon    (from NASA Fact Sheet)
+
+        Planetary oblateness [-]:
+            41  Me      (from NASA Fact Sheet)
+            42  V       (from NASA Fact Sheet)
+            43  E       (from NASA Fact Sheet)
+            44  Ma      (from NASA Fact Sheet)
+            45  J       (from NASA Fact Sheet)
+            46  S       (from NASA Fact Sheet)
+            47  U       (from NASA Fact Sheet)
+            48  N       (from NASA Fact Sheet)
+            49  P       (from NASA Fact Sheet)
+            50  Moon    (from NASA Fact Sheet)
+
+        Sidereal rotation period [hours]:
+            51  Me      (from NASA Fact Sheet)
+            52  V       (from NASA Fact Sheet)
+            53  E       (from NASA Fact Sheet)
+            54  Ma      (from NASA Fact Sheet)
+            55  J       (from NASA Fact Sheet)
+            56  S       (from NASA Fact Sheet)
+            57  U       (from NASA Fact Sheet)
+            58  N       (from NASA Fact Sheet)
+            59  P       (from NASA Fact Sheet)
+            60  Moon    (from NASA Fact Sheet)
+
+        Axial tilt (inclination of the equator with respect to the ecliptic) [deg]:
+            61  Me      (from NASA Fact Sheet)
+            62  V       (from NASA Fact Sheet)
+            63  E       (from NASA Fact Sheet)
+            64  Ma      (from NASA Fact Sheet)
+            65  J       (from NASA Fact Sheet)
+            66  S       (from NASA Fact Sheet)
+            67  U       (from NASA Fact Sheet)
+            68  N       (from NASA Fact Sheet)
+            69  P       (from NASA Fact Sheet)
+            70  Moon    (from NASA Fact Sheet)
+
+        Solar irradiance [W/m^2]:
+            71  Me      (from NASA Fact Sheet)
+            72  V       (from NASA Fact Sheet)
+            73  E       (from NASA Fact Sheet)
+            74  Ma      (from NASA Fact Sheet)
+            75  J       (from NASA Fact Sheet)
+            76  S       (from NASA Fact Sheet)
+            77  U       (from NASA Fact Sheet)
+            78  N       (from NASA Fact Sheet)
+            79  P       (from NASA Fact Sheet)
+            80  Moon    (from NASA Fact Sheet)
+
+    Notes for upgrading this function:
+    It is possible to add new constants.
+    - DO NOT change the structure of the function, as well as its prototype.
+    - DO NOT change the identifiers of the constants that have already been defined.
+        If you want to add a new constant, use an unused identifier.
+    - DO NOT add constants that can be easily computed starting from other ones (avoid redundancy).
+    Contact the author for modifications.
+
+    INPUT:
+    in      Vector of identifiers of required constants.
+
+    OUTPUT:
+    out     Vector of constants.
+
+    EXAMPLE:
+    astroConstants([2, 4, 26])
+        Returns a row vector in which there is the value of the AU, the Sun planetary constant,
+        and the mean radius of Saturn.
+
+    astroConstants(10 + [1:9])
+        Returns a row vector with the planetary constant of each planet.
+
+    AUTHOR:
+    Matteo Ceriotti, 2006, MATLAB, astroConstants.m
+
+    CHANGELOG:
+    26/10/2006, Camilla Colombo: Updated.
+    22/10/2007, Camilla Colombo: astroConstants(8) added (Obliquity at Epoch 2000).
+    02/10/2009, Camilla Colombo: Header and function name in accordance with guidelines.
+    12/11/2010, Camilla Colombo: astroConstants(9) added (J2).
+    19/03/2013, Camilla Colombo: constants updated to NASA JPL website; references added.
+    21/11/2024, Mathilda Bolis: added constants related to other planets.
+
+    10/12/2025, Prthik Nandhan Karthikeyan: Translated to Python.
+
+    -------------------------------------------------------------------------
+
+    9: J2
+    82: 365.25
+    '''
+
     match index:
         case 1:
             output = 6.67259e-20  # From DITAN and Horizon

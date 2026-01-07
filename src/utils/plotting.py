@@ -5,6 +5,36 @@ import numpy as np
 from utils.utils import jd2date
 
 def save_porkchop_plot(dep_range, arr_range, dv_matrix, filename, Pmin, Pmax, dpi, n_ticks=6, cmap='CMRmap'):
+    '''
+    Generate and save a porkchop plot from given delta-V matrix and departure/arrival date ranges.
+    
+    Input Parameters:
+    dep_range : array-like
+        Array of departure dates in MJD2000.
+    arr_range : array-like
+        Array of arrival dates in MJD2000.
+    dv_matrix : 2D array-like
+        Matrix of delta-V values (km/s) corresponding to departure and arrival dates.
+    filename : str or None
+        Path to save the generated plot. If None, a default path is used.
+    Pmin : float
+        Minimum delta-V value for color scale.
+    Pmax : float
+        Maximum delta-V value for color scale.
+    dpi : int
+        Resolution of the saved plot. (dots per inch)
+    n_ticks : int, optional
+        Number of ticks on each axis (default is 6).
+    cmap : str, optional
+        Colormap to use for the plot (default is 'CMRmap').
+
+    Returns:
+    str : string
+        Path to the saved plot image.
+
+    Author:
+        Prthik Karthikeyan 02/01/2026
+    '''
     # dv_matrix expected shape (n_dep, n_arr)
     Z = np.array(dv_matrix, dtype=float).copy()
     Z[Z == 0] = np.nan  # mask invalid entries

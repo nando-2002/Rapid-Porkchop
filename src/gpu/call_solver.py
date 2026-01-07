@@ -22,6 +22,44 @@ def call_solver(departureStart, departureEnd,
                 arrivalStart, arrivalEnd, 
                 nPoints, planetID1, planetID2):
 
+    '''
+    Calls the CUDA kernel to compute the porkchop map on the GPU.
+
+    Input Parameters:
+    departureStart : float
+        Start date for departure window (MJD2000).
+    departureEnd : float
+        End date for departure window (MJD2000).
+    arrivalStart : float
+        Start date for arrival window (MJD2000).
+    arrivalEnd : float
+        End date for arrival window (MJD2000).
+    nPoints : int
+        Number of points in the porkchop grid (nPoints x nPoints).
+    planetID1 : int
+        ID of the departure planet (e.g., 3 for Earth).
+    planetID2 : int
+        ID of the arrival planet (e.g., 4 for Mars).
+    
+    Returns:
+    delta_v_solutions_gpu : 2D numpy array
+        Array of delta-v solutions computed on the GPU.
+    dep_range : 1D numpy array
+        Array of departure dates (MJD2000).
+    arr_range : 1D numpy array
+        Array of arrival dates (MJD2000).
+    r_dep : 2D numpy array
+        Array of departure planet position vectors.
+    v_dep : 2D numpy array
+        Array of departure planet velocity vectors.
+    r_arriv : 2D numpy array
+        Array of arrival planet position vectors.
+    v_arriv : 2D numpy array
+        Array of arrival planet velocity vectors.
+
+    Author:
+        Prthik Nandhan Karthikeyan, 12/12/2025
+    '''
 
     # GPU kernel (function) is defined within the call_solver function
     # due to the limitation of the GPU being unable to return values
