@@ -15,7 +15,14 @@ This project implements the Lambert problem (two-point boundary value problem) a
 
 ---
 
-## Installation (Conda)
+## Installation
+Install Python, preferably through [Anaconda]<https://www.anaconda.com/docs/getting-started/miniconda/install> so that you get the conda package manager easily.
+
+Clone the repo
+```powershell
+git clone https://github.com/nando-2002/Rapid-Porkchop.git
+```
+### Package Installs
 
 Conda is recommended for managing Python and CUDA-related dependencies.
 
