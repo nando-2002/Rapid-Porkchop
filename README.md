@@ -16,7 +16,7 @@ This project implements the Lambert problem (two-point boundary value problem) a
 ---
 
 ## Installation
-Install Python, preferably through [Anaconda]<https://www.anaconda.com/docs/getting-started/miniconda/install> so that you get the conda package manager easily.
+Install Python, preferably through [Anaconda](https://www.anaconda.com/docs/getting-started/miniconda/install) so that you get the conda package manager easily.
 
 Clone the repo
 ```powershell
