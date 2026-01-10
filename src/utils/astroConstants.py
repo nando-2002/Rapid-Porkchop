@@ -115,27 +115,7 @@ def astroConstants(index):
             79  P       (from NASA Fact Sheet)
             80  Moon    (from NASA Fact Sheet)
 
-    Notes for upgrading this function:
-    It is possible to add new constants.
-    - DO NOT change the structure of the function, as well as its prototype.
-    - DO NOT change the identifiers of the constants that have already been defined.
-        If you want to add a new constant, use an unused identifier.
-    - DO NOT add constants that can be easily computed starting from other ones (avoid redundancy).
-    Contact the author for modifications.
-
-    INPUT:
-    in      Vector of identifiers of required constants.
-
-    OUTPUT:
-    out     Vector of constants.
-
-    EXAMPLE:
-    astroConstants([2, 4, 26])
-        Returns a row vector in which there is the value of the AU, the Sun planetary constant,
-        and the mean radius of Saturn.
-
-    astroConstants(10 + [1:9])
-        Returns a row vector with the planetary constant of each planet.
+    
 
     AUTHOR:
     Matteo Ceriotti, 2006, MATLAB, astroConstants.m
