@@ -1,5 +1,7 @@
 import numpy as np
 import os
+
+# suppress warnings
 np.seterr(divide='ignore', invalid='ignore')
 
 def printLine():
